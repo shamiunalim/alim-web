@@ -1,0 +1,225 @@
+<!DOCTYPE html><html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="theme-color" content="#020617">
+<meta name="description" content="Maxiel Web - Downloader dan Web Tools">
+<title>Maxiel Web</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body><div class="app"><aside class="sidebar" id="sidebar"><div class="brand">
+<div class="brand-icon">M</div>
+<div>
+<h2>Maxiel</h2>
+<span>Web Tools</span>
+</div>
+</div><nav class="nav"><button class="nav-item active" data-page="dashboard">
+<span>⌂</span>
+<div>
+<strong>Dashboard</strong>
+<small>Overview</small>
+</div>
+</button><button class="nav-item" data-page="tiktok">
+<span>♪</span>
+<div>
+<strong>TikTok</strong>
+<small>Downloader</small>
+</div>
+</button><button class="nav-item" data-page="instagram">
+<span>◎</span>
+<div>
+<strong>Instagram</strong>
+<small>Downloader</small>
+</div>
+</button><button class="nav-item" data-page="facebook">
+<span>f</span>
+<div>
+<strong>Facebook</strong>
+<small>Downloader</small>
+</div>
+</button><button class="nav-item" data-page="runtime">
+<span>◷</span>
+<div>
+<strong>Runtime</strong>
+<small>Web active time</small>
+</div>
+</button><button class="nav-item" data-page="system">
+<span>⌘</span>
+<div>
+<strong>System</strong>
+<small>Browser info</small>
+</div>
+</button><button class="nav-item" data-page="developer">
+<span>◆</span>
+<div>
+<strong>Developer</strong>
+<small>Maxiel Nuoye</small>
+</div>
+</button></nav><div class="sidebar-bottom">
+<div class="online-dot"></div>
+<span>System Online</span>
+</div></aside><main class="main"><header class="topbar"><button class="mobile-menu" id="mobileMenu">☰</button>
+
+<div>
+<div class="breadcrumb">MAXIEL WEB / <span id="pageTitle">DASHBOARD</span></div>
+<h1 id="headerTitle">Dashboard</h1>
+</div><div class="top-right">
+<div class="clock-box">
+<strong id="clock">00:00:00</strong>
+<span id="date">Loading...</span>
+</div>
+</div></header><section class="content"><!-- DASHBOARD --><div class="page active" id="page-dashboard"><div class="hero">
+<div>
+<span class="eyebrow">MAXIEL WEB</span>
+<h2>Welcome to <span>Maxiel Web</span></h2>
+<p>Simple web tools with a modern dark interface.</p>
+</div><div class="hero-orb">
+<div class="orb-inner">M</div>
+</div>
+</div><div class="stats-grid"><div class="stat-card">
+<div class="stat-icon blue">◆</div>
+<div>
+<span>Tools</span>
+<strong>3</strong>
+</div>
+</div><div class="stat-card">
+<div class="stat-icon green">●</div>
+<div>
+<span>Platform</span>
+<strong>3</strong>
+</div>
+</div><div class="stat-card">
+<div class="stat-icon cyan">✓</div>
+<div>
+<span>Status</span>
+<strong class="online-text">Online</strong>
+</div>
+</div><div class="stat-card">
+<div class="stat-icon purple">◷</div>
+<div>
+<span>Runtime</span>
+<strong id="runtime">00:00:00:00</strong>
+</div>
+</div></div><!-- GLOBAL STATISTICS --><div class="section-title">
+<div>
+<span class="eyebrow">GLOBAL STATISTICS</span>
+<h3>Website Traffic</h3>
+</div>
+</div><div class="stats-grid traffic-grid"><div class="stat-card traffic-card">
+<div class="stat-icon blue">◉</div>
+<div>
+<span>Total Pengguna</span>
+<strong id="totalUsers">—</strong>
+<small>Unique visits</small>
+</div>
+</div><div class="stat-card traffic-card">
+<div class="stat-icon cyan">◌</div>
+<div>
+<span>Total Tayangan</span>
+<strong id="totalViews">—</strong>
+<small>Page views</small>
+</div>
+</div></div><div class="section-title">
+<div>
+<span class="eyebrow">QUICK ACCESS</span>
+<h3>Choose a tool</h3>
+</div>
+</div><div class="quick-grid"><button class="quick-card" data-page="tiktok">
+<div class="quick-logo tiktok-logo">♪</div>
+<div>
+<strong>TikTok</strong>
+<span>Download video</span>
+</div>
+</button><button class="quick-card" data-page="instagram">
+<div class="quick-logo instagram-logo">◎</div>
+<div>
+<strong>Instagram</strong>
+<span>Download media</span>
+</div>
+</button><button class="quick-card" data-page="facebook">
+<div class="quick-logo facebook-logo">f</div>
+<div>
+<strong>Facebook</strong>
+<span>Download video</span>
+</div>
+</button><button class="quick-card" data-page="runtime">
+<div class="quick-logo runtime-logo">◷</div>
+<div>
+<strong>Web Runtime</strong>
+<span>Deployment uptime</span>
+</div>
+</button></div></div><!-- TIKTOK --><div class="page" id="page-tiktok"><div class="page-heading">
+<span class="eyebrow">DOWNLOADER</span>
+<h2>TikTok Downloader</h2>
+<p>Download TikTok videos without watermark.</p>
+</div><div class="tool-card"><label for="tiktokUrl">TikTok URL</label>
+
+<div class="input-row">
+<input id="tiktokUrl" type="url" placeholder="https://www.tiktok.com/@user/video/...">
+<button class="primary-btn" id="tiktokBtn">Download</button>
+</div><div id="tiktokResult" class="result"></div></div></div><!-- INSTAGRAM --><div class="page" id="page-instagram"><div class="page-heading">
+<span class="eyebrow">DOWNLOADER</span>
+<h2>Instagram Downloader</h2>
+<p>Download Instagram posts, reels and media.</p>
+</div><div class="tool-card"><label for="instagramUrl">Instagram URL</label>
+
+<div class="input-row">
+<input id="instagramUrl" type="url" placeholder="https://www.instagram.com/reel/...">
+<button class="primary-btn" id="instagramBtn">Download</button>
+</div><div id="instagramResult" class="result"></div></div></div><!-- FACEBOOK --><div class="page" id="page-facebook"><div class="page-heading">
+<span class="eyebrow">DOWNLOADER</span>
+<h2>Facebook Downloader</h2>
+<p>Download Facebook videos.</p>
+</div><div class="tool-card"><label for="facebookUrl">Facebook URL</label>
+
+<div class="input-row">
+<input id="facebookUrl" type="url" placeholder="https://www.facebook.com/...">
+<button class="primary-btn" id="facebookBtn">Download</button>
+</div><div id="facebookResult" class="result"></div></div></div><!-- RUNTIME --><div class="page" id="page-runtime"><div class="page-heading">
+<span class="eyebrow">WEBSITE STATUS</span>
+<h2>Web Runtime</h2>
+<p>Waktu website aktif sejak deployment terakhir.</p>
+</div><div class="runtime-panel"><div class="runtime-icon">◷</div><div class="runtime-value" id="runtimeBig">00:00:00:00</div><div class="runtime-label">DAYS : HOURS : MINUTES : SECONDS</div><div class="runtime-info"><div>
+<span>Deployment</span>
+<strong id="deploymentTime">Loading...</strong>
+</div><div>
+<span>Last Update</span>
+<strong id="lastUpdate">--:--:--</strong>
+</div></div></div></div><!-- SYSTEM --><div class="page" id="page-system"><div class="page-heading">
+<span class="eyebrow">SYSTEM</span>
+<h2>System Information</h2>
+<p>Informasi browser dan perangkat yang sedang digunakan.</p>
+</div><div class="system-grid"><div class="system-card">
+<span>Platform</span>
+<strong id="sysPlatform">—</strong>
+</div><div class="system-card">
+<span>Browser</span>
+<strong id="sysBrowser">—</strong>
+</div><div class="system-card">
+<span>Language</span>
+<strong id="sysLanguage">—</strong>
+</div><div class="system-card">
+<span>Screen</span>
+<strong id="sysScreen">—</strong>
+</div><div class="system-card">
+<span>Viewport</span>
+<strong id="sysViewport">—</strong>
+</div><div class="system-card">
+<span>Timezone</span>
+<strong id="sysTimezone">—</strong>
+</div><div class="system-card">
+<span>Connection</span>
+<strong id="sysConnection">—</strong>
+</div><div class="system-card">
+<span>Cookies</span>
+<strong id="sysCookies">—</strong>
+</div></div></div><!-- DEVELOPER --><div class="page" id="page-developer"><div class="developer-card"><div class="developer-avatar">M</div><span class="eyebrow">DEVELOPER</span>
+
+<h2>Maxiel Nuoye</h2>
+<p>Developer & creator of Maxiel Web.</p><a class="primary-btn developer-btn" href="https://wa.me/6287766443103" target="_blank" rel="noopener">
+Contact Developer
+</a></div></div></section><footer>
+<span>© 2026 Maxiel Web</span>
+<span>Powered by Maxiel Nuoye</span>
+</footer></main></div><div id="toast"></div><script src="script.js"></script></body>
+</html>
