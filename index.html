@@ -1,0 +1,231 @@
+<!DOCTYPE html><html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta name="description" content="Maxiel Web - Downloader & Web Tools">
+<title>Maxiel Web</title>
+<link rel="stylesheet" href="style.css">
+</head><body><div class="sky">
+<div class="aurora aurora-one"></div>
+<div class="aurora aurora-two"></div>
+<div class="aurora aurora-three"></div><div class="stars stars-one"></div>
+<div class="stars stars-two"></div>
+<div class="stars stars-three"></div><div class="moon"></div>
+</div><div class="app"><aside class="sidebar" id="sidebar"><div class="sidebar-head"><div class="brand">
+<div class="brand-logo">M</div><div>
+<strong>MAXIEL</strong>
+<span>WEB</span>
+</div>
+</div><button class="close-menu" id="closeMenu">×</button>
+
+</div><div class="sidebar-line"></div><nav class="nav"><button class="nav-item active" data-page="dashboard">
+<div class="nav-icon">⌂</div>
+<div>
+<strong>Dashboard</strong>
+<small>Beranda</small>
+</div>
+</button><button class="nav-item" data-page="tiktok">
+<div class="nav-icon">♪</div>
+<div>
+<strong>TikTok Downloader</strong>
+<small>Download video</small>
+</div>
+</button><button class="nav-item" data-page="instagram">
+<div class="nav-icon">◎</div>
+<div>
+<strong>Instagram Downloader</strong>
+<small>Download media</small>
+</div>
+</button><button class="nav-item" data-page="facebook">
+<div class="nav-icon">f</div>
+<div>
+<strong>Facebook Downloader</strong>
+<small>Download video</small>
+</div>
+</button><button class="nav-item" data-page="time">
+<div class="nav-icon">◷</div>
+<div>
+<strong>Waktu Sekarang</strong>
+<small>Jam & Hijriyah</small>
+</div>
+</button><button class="nav-item" data-page="developer">
+<div class="nav-icon">◆</div>
+<div>
+<strong>Developer</strong>
+<small>Maxiel Nuoye</small>
+</div>
+</button></nav><div class="sidebar-bottom"><div class="music-status">
+<div class="music-disc">♫</div><div>
+<strong>Music</strong>
+<span id="musicStatus">Preparing...</span>
+</div><button id="musicToggle" title="Play / Pause">
+▶
+</button>
+</div></div></aside><div class="drawer-overlay" id="drawerOverlay"></div><main class="main"><header class="topbar"><div class="top-left"><button class="menu-button" id="menuButton" aria-label="Open menu">
+<span></span>
+<span></span>
+<span></span>
+</button><div class="mini-brand">
+<span>MAXIEL</span>
+<small>WEB</small>
+</div></div><div class="top-time"><strong id="clock">00:00:00</strong>
+
+<div class="top-date">
+<span id="day">Loading...</span>
+<span class="separator">•</span>
+<span id="date">Loading...</span>
+</div><div class="hijri-small" id="hijriSmall">
+Loading Hijriyah...
+</div></div></header><section class="content"><!-- DASHBOARD --><div class="page active" id="page-dashboard"><section class="hero"><div class="hero-content"><div class="badge">
+<span></span>
+MAXIEL WEB ONLINE
+</div><h1>
+Explore The
+<br>
+<span>Night Web</span>
+</h1><p>
+Downloader sederhana dengan nuansa langit malam
+dan aurora warna-warni.
+</p><div class="hero-buttons"><button class="hero-btn" data-page="tiktok">
+TikTok
+</button><button class="hero-btn" data-page="instagram">
+Instagram
+</button><button class="hero-btn" data-page="facebook">
+Facebook
+</button></div></div><div class="hero-sky"><div class="floating-orb orb-one"></div>
+<div class="floating-orb orb-two"></div>
+<div class="floating-orb orb-three"></div></div></section><div class="section-heading"><div>
+<span class="eyebrow">WEBSITE</span>
+<h2>Statistics</h2>
+</div><div class="online-indicator">
+<span></span>
+Online
+</div></div><div class="stats-grid"><div class="stat-card"><div class="stat-icon blue">◉</div><div>
+<span>Total Pengguna</span>
+<strong id="totalUsers">—</strong>
+<small>Visitors</small>
+</div></div><div class="stat-card"><div class="stat-icon purple">◌</div><div>
+<span>Total Tayangan</span>
+<strong id="totalViews">—</strong>
+<small>Page views</small>
+</div></div><div class="stat-card"><div class="stat-icon cyan">◆</div><div>
+<span>Downloader</span>
+<strong>3</strong>
+<small>Available tools</small>
+</div></div></div><div class="section-heading"><div>
+<span class="eyebrow">MENU</span>
+<h2>Web Tools</h2>
+</div></div><div class="feature-grid"><button class="feature-card" data-page="tiktok"><div class="feature-logo tiktok">♪</div><div>
+<strong>TikTok Downloader</strong>
+<span>Download video TikTok</span>
+</div><div class="feature-arrow">→</div></button><button class="feature-card" data-page="instagram"><div class="feature-logo instagram">◎</div><div>
+<strong>Instagram Downloader</strong>
+<span>Download reels & media</span>
+</div><div class="feature-arrow">→</div></button><button class="feature-card" data-page="facebook"><div class="feature-logo facebook">f</div><div>
+<strong>Facebook Downloader</strong>
+<span>Download video Facebook</span>
+</div><div class="feature-arrow">→</div></button><button class="feature-card" data-page="time"><div class="feature-logo time">◷</div><div>
+<strong>Waktu Sekarang</strong>
+<span>Jam, hari & Hijriyah</span>
+</div><div class="feature-arrow">→</div></button></div></div><!-- TIKTOK --><div class="page" id="page-tiktok"><div class="page-heading"><span class="eyebrow">DOWNLOADER 01</span>
+
+<h1>TikTok Downloader</h1><p>
+Download video TikTok dengan mudah.
+</p></div><div class="tool-card"><div class="tool-icon tiktok">♪</div><label for="tiktokUrl">TikTok URL</label>
+
+<div class="input-row"><input
+id="tiktokUrl"
+type="url"
+autocomplete="off"
+placeholder="https://www.tiktok.com/@user/video/..."
+
+«»
+
+<button class="primary-btn" id="tiktokBtn">
+Download
+</button></div><div id="tiktokResult" class="result"></div></div></div><!-- INSTAGRAM --><div class="page" id="page-instagram"><div class="page-heading"><span class="eyebrow">DOWNLOADER 02</span>
+
+<h1>Instagram Downloader</h1><p>
+Download Instagram reels, post dan media.
+</p></div><div class="tool-card"><div class="tool-icon instagram">◎</div><label for="instagramUrl">Instagram URL</label>
+
+<div class="input-row"><input
+id="instagramUrl"
+type="url"
+autocomplete="off"
+placeholder="https://www.instagram.com/reel/..."
+
+«»
+
+<button class="primary-btn" id="instagramBtn">
+Download
+</button></div><div id="instagramResult" class="result"></div></div></div><!-- FACEBOOK --><div class="page" id="page-facebook"><div class="page-heading"><span class="eyebrow">DOWNLOADER 03</span>
+
+<h1>Facebook Downloader</h1><p>
+Download video dari Facebook.
+</p></div><div class="tool-card"><div class="tool-icon facebook">f</div><label for="facebookUrl">Facebook URL</label>
+
+<div class="input-row"><input
+id="facebookUrl"
+type="url"
+autocomplete="off"
+placeholder="https://www.facebook.com/..."
+
+«»
+
+<button class="primary-btn" id="facebookBtn">
+Download
+</button></div><div id="facebookResult" class="result"></div></div></div><!-- TIME --><div class="page" id="page-time"><div class="page-heading"><span class="eyebrow">TIME CENTER</span>
+
+<h1>Waktu Sekarang</h1><p>
+Waktu perangkat saat ini dan kalender Hijriyah.
+</p></div><div class="time-card"><div class="big-clock" id="bigClock">
+00:00:00
+</div><div class="time-day" id="bigDay">
+Loading...
+</div><div class="time-date" id="bigDate">
+Loading...
+</div><div class="hijri-box"><span>KALENDER HIJRIYAH</span>
+
+<strong id="hijriBig">
+Loading...
+</strong></div><div class="time-zone">
+Timezone:
+<strong id="timezone">
+Loading...
+</strong>
+</div></div></div><!-- DEVELOPER --><div class="page" id="page-developer"><div class="developer"><div class="developer-logo">
+M
+</div><span class="eyebrow">
+DEVELOPER
+</span><h1>
+Maxiel Nuoye
+</h1><p>
+Creator & Developer of Maxiel Web.
+</p><a
+href="https://wa.me/6287766443103"
+target="_blank"
+rel="noopener"
+class="developer-button"
+
+«»
+
+Contact Developer
+</a>
+
+</div></div></section><footer><span>© 2026 Maxiel Web</span>
+
+<span>
+Powered by Maxiel Nuoye
+</span></footer></main></div><audio
+id="backgroundMusic"
+src="music.mp3"
+loop
+preload="auto"
+playsinline
+
+«</audio>»
+
+<div id="toast"></div><script src="script.js"></script></body>
+</html>
