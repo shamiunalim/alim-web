@@ -1020,7 +1020,6 @@ transition:.2s;
 transform:translateY(-2px);
 box-shadow:0 10px 30px rgba(255,255,255,.15);
 }
-
 /* ================= PAGE HEADER ================= */
 
 .page-header{
@@ -3227,6 +3226,7 @@ height:54px!important;
 grid-template-columns:1fr;
 }
 }
+
 .tutorial-video-info{
 flex-direction:column;
 align-items:stretch;
