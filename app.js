@@ -98,6 +98,11 @@ function updateClock() {
 
   document.getElementById("clock").textContent = time
   document.getElementById("date").textContent = date
+
+  const dashboardTime = document.getElementById("dashboardTime")
+  if (dashboardTime) {
+    dashboardTime.textContent = time.replaceAll(":", ".")
+  }
 }
 
 updateClock()
@@ -1463,3 +1468,462 @@ if (
   updateMusicUI()
 
 }
+
+// =========================
+// LAPOR DEVELOPER / PESAN
+// =========================
+
+const reportModal = document.getElementById("reportModal")
+const reportTitle = document.getElementById("reportTitle")
+const reportHint = document.getElementById("reportHint")
+const reportText = document.getElementById("reportText")
+const reportMedia = document.getElementById("reportMedia")
+const reportMediaPreview = document.getElementById("reportMediaPreview")
+const reportSend = document.getElementById("reportSend")
+
+const REPORT_WHATSAPP = "6287766443103"
+
+let reportType = "developer"
+let reportSelectedFile = null
+let reportPreviewUrl = null
+
+function formatReportSize(bytes) {
+  if (!Number.isFinite(bytes)) return ""
+
+  if (bytes < 1024) {
+    return `${bytes} B`
+  }
+
+  if (bytes < 1024 * 1024) {
+    return `${(bytes / 1024).toFixed(1)} KB`
+  }
+
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
+
+function escapeReportHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;")
+}
+
+function clearReportMedia() {
+  if (reportPreviewUrl) {
+    URL.revokeObjectURL(reportPreviewUrl)
+    reportPreviewUrl = null
+  }
+
+  reportSelectedFile = null
+
+  if (reportMedia) {
+    reportMedia.value = ""
+  }
+
+  if (reportMediaPreview) {
+    reportMediaPreview.innerHTML = ""
+    reportMediaPreview.classList.remove("show")
+  }
+}
+
+function showReportMedia(file) {
+  if (!file) return
+
+  if (reportPreviewUrl) {
+    URL.revokeObjectURL(reportPreviewUrl)
+    reportPreviewUrl = null
+  }
+
+  reportSelectedFile = file
+
+  const isImage = file.type.startsWith("image/")
+  const isVideo = file.type.startsWith("video/")
+
+  let preview = ""
+
+  if (isImage || isVideo) {
+    reportPreviewUrl = URL.createObjectURL(file)
+
+    preview = isImage
+      ? `<img class="report-media-thumb" src="${reportPreviewUrl}" alt="Media laporan">`
+      : `<video class="report-media-thumb" src="${reportPreviewUrl}" muted></video>`
+  } else {
+    preview = `<div class="report-media-thumb" style="display:grid;place-items:center;font-size:24px">📎</div>`
+  }
+
+  reportMediaPreview.innerHTML = `
+    ${preview}
+    <div class="report-media-info">
+      <strong>${escapeReportHtml(file.name)}</strong>
+      <small>${escapeReportHtml(file.type || "file")} • ${formatReportSize(file.size)}</small>
+    </div>
+    <button class="report-media-remove" type="button" id="removeReportMedia" aria-label="Hapus media">×</button>
+  `
+
+  reportMediaPreview.classList.add("show")
+
+  document
+    .getElementById("removeReportMedia")
+    ?.addEventListener("click", clearReportMedia)
+}
+
+function openReportModal(type = "developer") {
+  reportType = type
+
+  const isMessage = type === "message"
+
+  reportTitle.textContent =
+    isMessage ? "Lapor Pesan" : "Lapor Developer"
+
+  reportHint.textContent =
+    isMessage
+      ? "Tulis pesan atau laporan yang ingin disampaikan kepada developer."
+      : "Tulis laporan atau masukan untuk developer."
+
+  reportText.placeholder =
+    isMessage
+      ? "Tulis laporan pesan..."
+      : "Tulis laporan..."
+
+  reportText.value = ""
+  clearReportMedia()
+
+  reportModal.classList.add("open")
+  reportModal.setAttribute("aria-hidden", "false")
+
+  setTimeout(() => {
+    reportText.focus()
+  }, 50)
+}
+
+function closeReportModal() {
+  reportModal.classList.remove("open")
+  reportModal.setAttribute("aria-hidden", "true")
+  reportText.value = ""
+  clearReportMedia()
+}
+
+async function sendDeveloperReport() {
+  const text = reportText.value.trim()
+
+  if (!text && !reportSelectedFile) {
+    toast("Tulis laporan atau pilih media terlebih dahulu.")
+    reportText.focus()
+    return
+  }
+
+  const typeLabel =
+    reportType === "message"
+      ? "Lapor Pesan"
+      : "Lapor Developer"
+
+  const reportMessage = [
+    `Halo Maxiel Nuoye ོ, saya ingin mengirim ${typeLabel.toLowerCase()}.`,
+    "",
+    text || "(Tidak ada teks laporan)",
+    reportSelectedFile
+      ? `\nLampiran: ${reportSelectedFile.name}`
+      : ""
+  ].join("\n")
+
+  try {
+    reportSend.disabled = true
+    reportSend.textContent = "…"
+
+    /*
+     * wa.me hanya dapat membawa teks melalui ?text=.
+     * Jika browser mendukung Web Share API + file, media
+     * dibagikan bersama teks agar bisa dipilih ke WhatsApp.
+     */
+    if (
+      reportSelectedFile &&
+      navigator.share &&
+      navigator.canShare &&
+      navigator.canShare({
+        files: [reportSelectedFile]
+      })
+    ) {
+      await navigator.share({
+        title: typeLabel,
+        text: reportMessage,
+        files: [reportSelectedFile]
+      })
+
+      closeReportModal()
+      toast("Laporan siap dibagikan.")
+      return
+    }
+
+    const whatsappUrl =
+      `https://wa.me/${REPORT_WHATSAPP}?text=` +
+      encodeURIComponent(reportMessage)
+
+    window.open(
+      whatsappUrl,
+      "_blank",
+      "noopener,noreferrer"
+    )
+
+    closeReportModal()
+
+    if (reportSelectedFile) {
+      toast("WhatsApp dibuka. Lampiran perlu dipilih manual.")
+    } else {
+      toast("Laporan dibuka di WhatsApp.")
+    }
+
+  } catch (error) {
+    if (error?.name !== "AbortError") {
+      console.error("Gagal mengirim laporan:", error)
+
+      const whatsappUrl =
+        `https://wa.me/${REPORT_WHATSAPP}?text=` +
+        encodeURIComponent(reportMessage)
+
+      window.open(
+        whatsappUrl,
+        "_blank",
+        "noopener,noreferrer"
+      )
+
+      closeReportModal()
+      toast("WhatsApp dibuka untuk laporan.")
+    }
+  } finally {
+    reportSend.disabled = false
+    reportSend.textContent = "➤"
+  }
+}
+
+document
+  .querySelectorAll("[data-report]")
+  .forEach(button => {
+    button.addEventListener("click", () => {
+      openReportModal(button.dataset.report)
+    })
+  })
+
+document
+  .querySelectorAll("[data-report-close]")
+  .forEach(button => {
+    button.addEventListener("click", closeReportModal)
+  })
+
+reportMedia?.addEventListener(
+  "change",
+  () => {
+    const file = reportMedia.files?.[0]
+
+    if (file) {
+      showReportMedia(file)
+    }
+  }
+)
+
+reportSend?.addEventListener(
+  "click",
+  sendDeveloperReport
+)
+
+reportText?.addEventListener(
+  "keydown",
+  event => {
+    if (
+      event.key === "Enter" &&
+      !event.shiftKey &&
+      !event.isComposing
+    ) {
+      event.preventDefault()
+      sendDeveloperReport()
+    }
+  }
+)
+
+document.addEventListener(
+  "keydown",
+  event => {
+    if (
+      event.key === "Escape" &&
+      reportModal?.classList.contains("open")
+    ) {
+      closeReportModal()
+    }
+  }
+)
+
+
+// =========================================================
+// MAXIEL SETTINGS / THEME + SPECIFIC COLORS
+// =========================================================
+const maxielThemeKey = "maxiel_theme"
+const maxielColorsKey = "maxiel_dashboard_colors"
+const themeStatus = document.getElementById("themeStatus")
+const colorStatus = document.getElementById("colorStatus")
+const resetSettings = document.getElementById("resetSettings")
+
+const colorInputs = {
+  accent: document.getElementById("accentColor"),
+  background: document.getElementById("dashboardBgColor"),
+  topbar: document.getElementById("topbarColor"),
+  sidebar: document.getElementById("sidebarColor"),
+  card: document.getElementById("cardColor"),
+  text: document.getElementById("textColor")
+}
+
+const defaultDashboardColors = {
+  accent: "#087cff",
+  background: "#020817",
+  topbar: "#010712",
+  sidebar: "#020c1c",
+  card: "#03202e",
+  text: "#f4f7ff"
+}
+
+function hexToRgba(hex, alpha = .18) {
+  const value = String(hex).replace("#", "")
+  const full = value.length === 3
+    ? value.split("").map(x => x + x).join("")
+    : value
+  const number = Number.parseInt(full, 16)
+  if (!Number.isFinite(number)) return `rgba(8,124,255,${alpha})`
+  const r = (number >> 16) & 255
+  const g = (number >> 8) & 255
+  const b = number & 255
+  return `rgba(${r},${g},${b},${alpha})`
+}
+
+function isHex(value) {
+  return /^#[0-9a-fA-F]{6}$/.test(String(value))
+}
+
+function normalizeDashboardColors(colors = {}) {
+  const result = {}
+  for (const [key, fallback] of Object.entries(defaultDashboardColors)) {
+    result[key] = isHex(colors[key])
+      ? String(colors[key]).toLowerCase()
+      : fallback
+  }
+  return result
+}
+
+function applyDashboardColors(colors, save = true) {
+  const safe = normalizeDashboardColors(colors)
+  const root = document.body.style
+
+  root.setProperty("--accent", safe.accent)
+  root.setProperty("--accent-soft", hexToRgba(safe.accent, .18))
+  root.setProperty("--dashboard-bg", safe.background)
+  root.setProperty("--topbar-bg", hexToRgba(safe.topbar, .94))
+  root.setProperty("--sidebar-bg", hexToRgba(safe.sidebar, .96))
+  root.setProperty("--card-bg", hexToRgba(safe.card, .78))
+  root.setProperty("--text-main", safe.text)
+
+  Object.entries(colorInputs).forEach(([key, input]) => {
+    if (input) input.value = safe[key]
+  })
+
+  if (colorStatus) {
+    colorStatus.textContent = safe.accent.toUpperCase()
+  }
+
+  document.querySelectorAll(".color-preset").forEach(button => {
+    button.classList.toggle(
+      "selected",
+      button.dataset.color?.toLowerCase() === safe.accent
+    )
+  })
+
+  if (save) {
+    localStorage.setItem(maxielColorsKey, JSON.stringify(safe))
+  }
+}
+
+function getCurrentDashboardColors() {
+  const result = {}
+  for (const [key, input] of Object.entries(colorInputs)) {
+    result[key] = input?.value || defaultDashboardColors[key]
+  }
+  return normalizeDashboardColors(result)
+}
+
+function applyMaxielTheme(theme, save = true) {
+  const safe = ["blue", "original"].includes(theme)
+    ? theme
+    : "blue"
+
+  document.body.classList.remove(
+    "theme-blue",
+    "theme-original"
+  )
+  document.body.classList.add(`theme-${safe}`)
+
+  if (themeStatus) {
+    themeStatus.textContent = safe === "original"
+      ? "MAXIEL NEW"
+      : "BLUE"
+  }
+
+  document.querySelectorAll(".theme-option").forEach(button => {
+    button.classList.toggle(
+      "selected",
+      button.dataset.theme === safe
+    )
+  })
+
+  if (save) {
+    localStorage.setItem(maxielThemeKey, safe)
+  }
+}
+
+document.querySelectorAll(".theme-option").forEach(button => {
+  button.addEventListener("click", () => {
+    applyMaxielTheme(button.dataset.theme)
+    toast(`Background ${button.textContent.trim().split("\n")[0]} diterapkan.`)
+  })
+})
+
+Object.entries(colorInputs).forEach(([key, input]) => {
+  input?.addEventListener("input", event => {
+    const colors = getCurrentDashboardColors()
+    colors[key] = event.target.value
+    applyDashboardColors(colors)
+    toast(`Warna ${key} langsung diterapkan.`)
+  })
+})
+
+document.querySelectorAll(".color-preset").forEach(button => {
+  button.addEventListener("click", () => {
+    const colors = getCurrentDashboardColors()
+    colors.accent = button.dataset.color
+    applyDashboardColors(colors)
+    toast(`Warna menu aktif ${button.dataset.color.toUpperCase()} diterapkan.`)
+  })
+})
+
+resetSettings?.addEventListener("click", () => {
+  localStorage.removeItem(maxielThemeKey)
+  localStorage.removeItem(maxielColorsKey)
+  applyMaxielTheme("blue", false)
+  applyDashboardColors(defaultDashboardColors, false)
+  toast("Semua pengaturan warna dikembalikan ke default.")
+})
+
+let savedColors = defaultDashboardColors
+try {
+  const stored = JSON.parse(
+    localStorage.getItem(maxielColorsKey) || "null"
+  )
+  if (stored && typeof stored === "object") {
+    savedColors = normalizeDashboardColors(stored)
+  }
+} catch {}
+
+const savedTheme = localStorage.getItem(maxielThemeKey)
+applyMaxielTheme(
+  savedTheme === "original" ? "original" : "blue",
+  false
+)
+applyDashboardColors(savedColors, false)
+
