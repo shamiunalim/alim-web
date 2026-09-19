@@ -1755,31 +1755,14 @@ document.addEventListener(
 
 
 // =========================================================
-// MAXIEL SETTINGS / THEME + SPECIFIC COLORS
+// MAXIEL SETTINGS / THEME
 // =========================================================
 const maxielThemeKey = "maxiel_theme"
-const maxielColorsKey = "maxiel_dashboard_colors"
+const maxielAccentKey = "maxiel_accent"
 const themeStatus = document.getElementById("themeStatus")
 const colorStatus = document.getElementById("colorStatus")
+const accentColor = document.getElementById("accentColor")
 const resetSettings = document.getElementById("resetSettings")
-
-const colorInputs = {
-  accent: document.getElementById("accentColor"),
-  background: document.getElementById("dashboardBgColor"),
-  topbar: document.getElementById("topbarColor"),
-  sidebar: document.getElementById("sidebarColor"),
-  card: document.getElementById("cardColor"),
-  text: document.getElementById("textColor")
-}
-
-const defaultDashboardColors = {
-  accent: "#087cff",
-  background: "#020817",
-  topbar: "#010712",
-  sidebar: "#020c1c",
-  card: "#03202e",
-  text: "#f4f7ff"
-}
 
 function hexToRgba(hex, alpha = .18) {
   const value = String(hex).replace("#", "")
@@ -1794,58 +1777,25 @@ function hexToRgba(hex, alpha = .18) {
   return `rgba(${r},${g},${b},${alpha})`
 }
 
-function isHex(value) {
-  return /^#[0-9a-fA-F]{6}$/.test(String(value))
-}
+function applyMaxielAccent(color, save = true) {
+  const safe = /^#[0-9a-fA-F]{6}$/.test(String(color))
+    ? String(color).toLowerCase()
+    : "#087cff"
 
-function normalizeDashboardColors(colors = {}) {
-  const result = {}
-  for (const [key, fallback] of Object.entries(defaultDashboardColors)) {
-    result[key] = isHex(colors[key])
-      ? String(colors[key]).toLowerCase()
-      : fallback
-  }
-  return result
-}
+  document.body.style.setProperty("--accent", safe)
+  document.body.style.setProperty("--accent-soft", hexToRgba(safe, .18))
 
-function applyDashboardColors(colors, save = true) {
-  const safe = normalizeDashboardColors(colors)
-  const root = document.body.style
-
-  root.setProperty("--accent", safe.accent)
-  root.setProperty("--accent-soft", hexToRgba(safe.accent, .18))
-  root.setProperty("--dashboard-bg", safe.background)
-  root.setProperty("--topbar-bg", hexToRgba(safe.topbar, .94))
-  root.setProperty("--sidebar-bg", hexToRgba(safe.sidebar, .96))
-  root.setProperty("--card-bg", hexToRgba(safe.card, .78))
-  root.setProperty("--text-main", safe.text)
-
-  Object.entries(colorInputs).forEach(([key, input]) => {
-    if (input) input.value = safe[key]
-  })
-
-  if (colorStatus) {
-    colorStatus.textContent = safe.accent.toUpperCase()
-  }
+  if (accentColor) accentColor.value = safe
+  if (colorStatus) colorStatus.textContent = safe.toUpperCase()
 
   document.querySelectorAll(".color-preset").forEach(button => {
     button.classList.toggle(
       "selected",
-      button.dataset.color?.toLowerCase() === safe.accent
+      button.dataset.color?.toLowerCase() === safe
     )
   })
 
-  if (save) {
-    localStorage.setItem(maxielColorsKey, JSON.stringify(safe))
-  }
-}
-
-function getCurrentDashboardColors() {
-  const result = {}
-  for (const [key, input] of Object.entries(colorInputs)) {
-    result[key] = input?.value || defaultDashboardColors[key]
-  }
-  return normalizeDashboardColors(result)
+  if (save) localStorage.setItem(maxielAccentKey, safe)
 }
 
 function applyMaxielTheme(theme, save = true) {
@@ -1855,26 +1805,22 @@ function applyMaxielTheme(theme, save = true) {
 
   document.body.classList.remove(
     "theme-blue",
-    "theme-original"
+    "theme-original",
   )
   document.body.classList.add(`theme-${safe}`)
 
   if (themeStatus) {
-    themeStatus.textContent = safe === "original"
-      ? "MAXIEL NEW"
-      : "BLUE"
+    themeStatus.textContent =
+      safe === "original"
+        ? "MAXIEL NEW"
+        : "BLUE"
   }
 
   document.querySelectorAll(".theme-option").forEach(button => {
-    button.classList.toggle(
-      "selected",
-      button.dataset.theme === safe
-    )
+    button.classList.toggle("selected", button.dataset.theme === safe)
   })
 
-  if (save) {
-    localStorage.setItem(maxielThemeKey, safe)
-  }
+  if (save) localStorage.setItem(maxielThemeKey, safe)
 }
 
 document.querySelectorAll(".theme-option").forEach(button => {
@@ -1884,46 +1830,106 @@ document.querySelectorAll(".theme-option").forEach(button => {
   })
 })
 
-Object.entries(colorInputs).forEach(([key, input]) => {
-  input?.addEventListener("input", event => {
-    const colors = getCurrentDashboardColors()
-    colors[key] = event.target.value
-    applyDashboardColors(colors)
-    toast(`Warna ${key} langsung diterapkan.`)
+document.querySelectorAll(".color-preset").forEach(button => {
+  button.addEventListener("click", () => {
+    applyMaxielAccent(button.dataset.color)
+    toast(`Warna aksen ${button.dataset.color.toUpperCase()} diterapkan.`)
   })
 })
 
-document.querySelectorAll(".color-preset").forEach(button => {
-  button.addEventListener("click", () => {
-    const colors = getCurrentDashboardColors()
-    colors.accent = button.dataset.color
-    applyDashboardColors(colors)
-    toast(`Warna menu aktif ${button.dataset.color.toUpperCase()} diterapkan.`)
-  })
+accentColor?.addEventListener("input", event => {
+  applyMaxielAccent(event.target.value)
 })
 
 resetSettings?.addEventListener("click", () => {
   localStorage.removeItem(maxielThemeKey)
-  localStorage.removeItem(maxielColorsKey)
+  localStorage.removeItem(maxielAccentKey)
   applyMaxielTheme("blue", false)
-  applyDashboardColors(defaultDashboardColors, false)
-  toast("Semua pengaturan warna dikembalikan ke default.")
+  applyMaxielAccent("#087cff", false)
+  toast("Pengaturan Maxiel dikembalikan ke default.")
 })
 
-let savedColors = defaultDashboardColors
-try {
-  const stored = JSON.parse(
-    localStorage.getItem(maxielColorsKey) || "null"
-  )
-  if (stored && typeof stored === "object") {
-    savedColors = normalizeDashboardColors(stored)
-  }
-} catch {}
-
-const savedTheme = localStorage.getItem(maxielThemeKey)
 applyMaxielTheme(
-  savedTheme === "original" ? "original" : "blue",
+  localStorage.getItem(maxielThemeKey) || "blue",
   false
 )
-applyDashboardColors(savedColors, false)
+applyMaxielAccent(
+  localStorage.getItem(maxielAccentKey) || "#087cff",
+  false
+)
 
+
+// =========================
+// TUTORIAL VIDEO
+// =========================
+
+const tutorialVideo = document.getElementById("tutorialVideo")
+const tutorialPlay = document.getElementById("tutorialPlay")
+const tutorialPause = document.getElementById("tutorialPause")
+const tutorialSlow = document.getElementById("tutorialSlow")
+const tutorialSpeed = document.getElementById("tutorialSpeed")
+const tutorialNormal = document.getElementById("tutorialNormal")
+const tutorialSeek = document.getElementById("tutorialSeek")
+const tutorialTime = document.getElementById("tutorialTime")
+const tutorialDuration = document.getElementById("tutorialDuration")
+
+function formatTutorialTime(seconds = 0) {
+  if (!Number.isFinite(seconds)) return "00:00"
+  const total = Math.max(0, Math.floor(seconds))
+  const minutes = Math.floor(total / 60)
+  const secs = total % 60
+  return `${String(minutes).padStart(2, "0")}:${String(secs).padStart(2, "0")}`
+}
+
+function updateTutorialTime() {
+  if (!tutorialVideo) return
+  const current = formatTutorialTime(tutorialVideo.currentTime)
+  const duration = formatTutorialTime(tutorialVideo.duration)
+  if (tutorialTime) tutorialTime.textContent = `${current} / ${duration}`
+  if (tutorialDuration) tutorialDuration.textContent = duration
+  if (tutorialSeek && Number.isFinite(tutorialVideo.duration) && tutorialVideo.duration > 0) {
+    tutorialSeek.value = ((tutorialVideo.currentTime / tutorialVideo.duration) * 100).toFixed(2)
+  }
+}
+
+if (tutorialVideo) {
+  tutorialVideo.addEventListener("loadedmetadata", updateTutorialTime)
+  tutorialVideo.addEventListener("timeupdate", updateTutorialTime)
+  tutorialVideo.addEventListener("ended", () => {
+    if (tutorialPlay) tutorialPlay.textContent = "↻ Putar Lagi"
+  })
+
+  tutorialPlay?.addEventListener("click", () => {
+    tutorialVideo.play().then(() => {
+      if (tutorialPlay) tutorialPlay.textContent = "▶ Playing"
+    }).catch(() => toast("Video tutorial belum bisa diputar."))
+  })
+
+  tutorialPause?.addEventListener("click", () => {
+    tutorialVideo.pause()
+    if (tutorialPlay) tutorialPlay.textContent = "▶ Play"
+  })
+
+  tutorialSlow?.addEventListener("click", () => {
+    tutorialVideo.playbackRate = 0.5
+    tutorialVideo.play().catch(() => {})
+    toast("Kecepatan tutorial: 0.5×")
+  })
+
+  tutorialSpeed?.addEventListener("click", () => {
+    tutorialVideo.playbackRate = 1.5
+    tutorialVideo.play().catch(() => {})
+    toast("Kecepatan tutorial: 1.5×")
+  })
+
+  tutorialNormal?.addEventListener("click", () => {
+    tutorialVideo.playbackRate = 1
+    toast("Kecepatan tutorial: 1×")
+  })
+
+  tutorialSeek?.addEventListener("input", event => {
+    if (!Number.isFinite(tutorialVideo.duration) || tutorialVideo.duration <= 0) return
+    tutorialVideo.currentTime = (Number(event.target.value) / 100) * tutorialVideo.duration
+    updateTutorialTime()
+  })
+}
