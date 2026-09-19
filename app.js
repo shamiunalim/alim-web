@@ -1755,14 +1755,31 @@ document.addEventListener(
 
 
 // =========================================================
-// MAXIEL SETTINGS / THEME
+// MAXIEL SETTINGS / THEME + SPECIFIC COLORS
 // =========================================================
 const maxielThemeKey = "maxiel_theme"
-const maxielAccentKey = "maxiel_accent"
+const maxielColorsKey = "maxiel_dashboard_colors"
 const themeStatus = document.getElementById("themeStatus")
 const colorStatus = document.getElementById("colorStatus")
-const accentColor = document.getElementById("accentColor")
 const resetSettings = document.getElementById("resetSettings")
+
+const colorInputs = {
+  accent: document.getElementById("accentColor"),
+  background: document.getElementById("dashboardBgColor"),
+  topbar: document.getElementById("topbarColor"),
+  sidebar: document.getElementById("sidebarColor"),
+  card: document.getElementById("cardColor"),
+  text: document.getElementById("textColor")
+}
+
+const defaultDashboardColors = {
+  accent: "#087cff",
+  background: "#020817",
+  topbar: "#010712",
+  sidebar: "#020c1c",
+  card: "#03202e",
+  text: "#f4f7ff"
+}
 
 function hexToRgba(hex, alpha = .18) {
   const value = String(hex).replace("#", "")
@@ -1777,25 +1794,58 @@ function hexToRgba(hex, alpha = .18) {
   return `rgba(${r},${g},${b},${alpha})`
 }
 
-function applyMaxielAccent(color, save = true) {
-  const safe = /^#[0-9a-fA-F]{6}$/.test(String(color))
-    ? String(color).toLowerCase()
-    : "#087cff"
+function isHex(value) {
+  return /^#[0-9a-fA-F]{6}$/.test(String(value))
+}
 
-  document.body.style.setProperty("--accent", safe)
-  document.body.style.setProperty("--accent-soft", hexToRgba(safe, .18))
+function normalizeDashboardColors(colors = {}) {
+  const result = {}
+  for (const [key, fallback] of Object.entries(defaultDashboardColors)) {
+    result[key] = isHex(colors[key])
+      ? String(colors[key]).toLowerCase()
+      : fallback
+  }
+  return result
+}
 
-  if (accentColor) accentColor.value = safe
-  if (colorStatus) colorStatus.textContent = safe.toUpperCase()
+function applyDashboardColors(colors, save = true) {
+  const safe = normalizeDashboardColors(colors)
+  const root = document.body.style
+
+  root.setProperty("--accent", safe.accent)
+  root.setProperty("--accent-soft", hexToRgba(safe.accent, .18))
+  root.setProperty("--dashboard-bg", safe.background)
+  root.setProperty("--topbar-bg", hexToRgba(safe.topbar, .94))
+  root.setProperty("--sidebar-bg", hexToRgba(safe.sidebar, .96))
+  root.setProperty("--card-bg", hexToRgba(safe.card, .78))
+  root.setProperty("--text-main", safe.text)
+
+  Object.entries(colorInputs).forEach(([key, input]) => {
+    if (input) input.value = safe[key]
+  })
+
+  if (colorStatus) {
+    colorStatus.textContent = safe.accent.toUpperCase()
+  }
 
   document.querySelectorAll(".color-preset").forEach(button => {
     button.classList.toggle(
       "selected",
-      button.dataset.color?.toLowerCase() === safe
+      button.dataset.color?.toLowerCase() === safe.accent
     )
   })
 
-  if (save) localStorage.setItem(maxielAccentKey, safe)
+  if (save) {
+    localStorage.setItem(maxielColorsKey, JSON.stringify(safe))
+  }
+}
+
+function getCurrentDashboardColors() {
+  const result = {}
+  for (const [key, input] of Object.entries(colorInputs)) {
+    result[key] = input?.value || defaultDashboardColors[key]
+  }
+  return normalizeDashboardColors(result)
 }
 
 function applyMaxielTheme(theme, save = true) {
@@ -1805,22 +1855,26 @@ function applyMaxielTheme(theme, save = true) {
 
   document.body.classList.remove(
     "theme-blue",
-    "theme-original",
+    "theme-original"
   )
   document.body.classList.add(`theme-${safe}`)
 
   if (themeStatus) {
-    themeStatus.textContent =
-      safe === "original"
-        ? "MAXIEL NEW"
-        : "BLUE"
+    themeStatus.textContent = safe === "original"
+      ? "MAXIEL NEW"
+      : "BLUE"
   }
 
   document.querySelectorAll(".theme-option").forEach(button => {
-    button.classList.toggle("selected", button.dataset.theme === safe)
+    button.classList.toggle(
+      "selected",
+      button.dataset.theme === safe
+    )
   })
 
-  if (save) localStorage.setItem(maxielThemeKey, safe)
+  if (save) {
+    localStorage.setItem(maxielThemeKey, safe)
+  }
 }
 
 document.querySelectorAll(".theme-option").forEach(button => {
@@ -1830,106 +1884,399 @@ document.querySelectorAll(".theme-option").forEach(button => {
   })
 })
 
-document.querySelectorAll(".color-preset").forEach(button => {
-  button.addEventListener("click", () => {
-    applyMaxielAccent(button.dataset.color)
-    toast(`Warna aksen ${button.dataset.color.toUpperCase()} diterapkan.`)
+Object.entries(colorInputs).forEach(([key, input]) => {
+  input?.addEventListener("input", event => {
+    const colors = getCurrentDashboardColors()
+    colors[key] = event.target.value
+    applyDashboardColors(colors)
+    toast(`Warna ${key} langsung diterapkan.`)
   })
 })
 
-accentColor?.addEventListener("input", event => {
-  applyMaxielAccent(event.target.value)
+document.querySelectorAll(".color-preset").forEach(button => {
+  button.addEventListener("click", () => {
+    const colors = getCurrentDashboardColors()
+    colors.accent = button.dataset.color
+    applyDashboardColors(colors)
+    toast(`Warna menu aktif ${button.dataset.color.toUpperCase()} diterapkan.`)
+  })
 })
 
 resetSettings?.addEventListener("click", () => {
   localStorage.removeItem(maxielThemeKey)
-  localStorage.removeItem(maxielAccentKey)
+  localStorage.removeItem(maxielColorsKey)
   applyMaxielTheme("blue", false)
-  applyMaxielAccent("#087cff", false)
-  toast("Pengaturan Maxiel dikembalikan ke default.")
+  applyDashboardColors(defaultDashboardColors, false)
+  toast("Semua pengaturan warna dikembalikan ke default.")
 })
 
+let savedColors = defaultDashboardColors
+try {
+  const stored = JSON.parse(
+    localStorage.getItem(maxielColorsKey) || "null"
+  )
+  if (stored && typeof stored === "object") {
+    savedColors = normalizeDashboardColors(stored)
+  }
+} catch {}
+
+const savedTheme = localStorage.getItem(maxielThemeKey)
 applyMaxielTheme(
-  localStorage.getItem(maxielThemeKey) || "blue",
+  savedTheme === "original" ? "original" : "blue",
   false
 )
-applyMaxielAccent(
-  localStorage.getItem(maxielAccentKey) || "#087cff",
-  false
-)
+applyDashboardColors(savedColors, false)
 
-
-// =========================
-// TUTORIAL VIDEO
-// =========================
+// =========================================================
+// MAXIEL TUTORIAL VIDEO PLAYER
+// =========================================================
 
 const tutorialVideo = document.getElementById("tutorialVideo")
+const tutorialVideoWrap = document.querySelector(".tutorial-video-wrap")
 const tutorialPlay = document.getElementById("tutorialPlay")
-const tutorialPause = document.getElementById("tutorialPause")
-const tutorialSlow = document.getElementById("tutorialSlow")
-const tutorialSpeed = document.getElementById("tutorialSpeed")
-const tutorialNormal = document.getElementById("tutorialNormal")
-const tutorialSeek = document.getElementById("tutorialSeek")
-const tutorialTime = document.getElementById("tutorialTime")
+const tutorialBigPlay = document.getElementById("tutorialBigPlay")
+const tutorialMute = document.getElementById("tutorialMute")
+const tutorialProgress = document.getElementById("tutorialProgress")
+const tutorialCurrentTime = document.getElementById("tutorialCurrentTime")
 const tutorialDuration = document.getElementById("tutorialDuration")
-
-function formatTutorialTime(seconds = 0) {
-  if (!Number.isFinite(seconds)) return "00:00"
-  const total = Math.max(0, Math.floor(seconds))
-  const minutes = Math.floor(total / 60)
-  const secs = total % 60
-  return `${String(minutes).padStart(2, "0")}:${String(secs).padStart(2, "0")}`
-}
-
-function updateTutorialTime() {
-  if (!tutorialVideo) return
-  const current = formatTutorialTime(tutorialVideo.currentTime)
-  const duration = formatTutorialTime(tutorialVideo.duration)
-  if (tutorialTime) tutorialTime.textContent = `${current} / ${duration}`
-  if (tutorialDuration) tutorialDuration.textContent = duration
-  if (tutorialSeek && Number.isFinite(tutorialVideo.duration) && tutorialVideo.duration > 0) {
-    tutorialSeek.value = ((tutorialVideo.currentTime / tutorialVideo.duration) * 100).toFixed(2)
-  }
-}
+const tutorialFullscreen = document.getElementById("tutorialFullscreen")
+const tutorialSpeedButton = document.getElementById("tutorialSpeedButton")
+const tutorialSpeed = document.querySelector(".tutorial-speed")
+const tutorialSpeedMenu = document.getElementById("tutorialSpeedMenu")
+const tutorialLoading = document.getElementById("tutorialVideoLoading")
 
 if (tutorialVideo) {
-  tutorialVideo.addEventListener("loadedmetadata", updateTutorialTime)
-  tutorialVideo.addEventListener("timeupdate", updateTutorialTime)
-  tutorialVideo.addEventListener("ended", () => {
-    if (tutorialPlay) tutorialPlay.textContent = "↻ Putar Lagi"
-  })
 
-  tutorialPlay?.addEventListener("click", () => {
-    tutorialVideo.play().then(() => {
-      if (tutorialPlay) tutorialPlay.textContent = "▶ Playing"
-    }).catch(() => toast("Video tutorial belum bisa diputar."))
-  })
+  function tutorialFormatTime(seconds) {
+    if (!Number.isFinite(seconds)) {
+      return "00:00"
+    }
 
-  tutorialPause?.addEventListener("click", () => {
-    tutorialVideo.pause()
-    if (tutorialPlay) tutorialPlay.textContent = "▶ Play"
-  })
+    const minutes = Math.floor(seconds / 60)
+    const secs = Math.floor(seconds % 60)
 
-  tutorialSlow?.addEventListener("click", () => {
-    tutorialVideo.playbackRate = 0.5
-    tutorialVideo.play().catch(() => {})
-    toast("Kecepatan tutorial: 0.5×")
-  })
+    return `${String(minutes).padStart(2, "0")}:${String(secs).padStart(2, "0")}`
+  }
 
-  tutorialSpeed?.addEventListener("click", () => {
-    tutorialVideo.playbackRate = 1.5
-    tutorialVideo.play().catch(() => {})
-    toast("Kecepatan tutorial: 1.5×")
-  })
+  function updateTutorialPlayUI() {
 
-  tutorialNormal?.addEventListener("click", () => {
-    tutorialVideo.playbackRate = 1
-    toast("Kecepatan tutorial: 1×")
-  })
+    const playing =
+      !tutorialVideo.paused &&
+      !tutorialVideo.ended
 
-  tutorialSeek?.addEventListener("input", event => {
-    if (!Number.isFinite(tutorialVideo.duration) || tutorialVideo.duration <= 0) return
-    tutorialVideo.currentTime = (Number(event.target.value) / 100) * tutorialVideo.duration
-    updateTutorialTime()
-  })
+    if (tutorialPlay) {
+      tutorialPlay.textContent =
+        playing ? "Ⅱ" : "▶"
+    }
+
+    tutorialVideoWrap?.classList.toggle(
+      "playing",
+      playing
+    )
+  }
+
+  function toggleTutorialPlay() {
+
+    if (tutorialVideo.paused) {
+      tutorialVideo.play().catch(error => {
+        console.error(
+          "Tutorial video tidak dapat diputar:",
+          error
+        )
+      })
+    } else {
+      tutorialVideo.pause()
+    }
+
+  }
+
+  // PLAY / PAUSE
+  tutorialPlay?.addEventListener(
+    "click",
+    toggleTutorialPlay
+  )
+
+  tutorialBigPlay?.addEventListener(
+    "click",
+    toggleTutorialPlay
+  )
+
+  // Klik video untuk play / pause
+  tutorialVideo.addEventListener(
+    "click",
+    toggleTutorialPlay
+  )
+
+  // STATUS PLAY
+  tutorialVideo.addEventListener(
+    "play",
+    updateTutorialPlayUI
+  )
+
+  // STATUS PAUSE
+  tutorialVideo.addEventListener(
+    "pause",
+    updateTutorialPlayUI
+  )
+
+  // VIDEO SELESAI
+  tutorialVideo.addEventListener(
+    "ended",
+    () => {
+
+      updateTutorialPlayUI()
+
+      if (tutorialProgress) {
+        tutorialProgress.value = 0
+      }
+
+    }
+  )
+
+  // DATA VIDEO SIAP
+  tutorialVideo.addEventListener(
+    "loadedmetadata",
+    () => {
+
+      if (tutorialDuration) {
+        tutorialDuration.textContent =
+          tutorialFormatTime(
+            tutorialVideo.duration
+          )
+      }
+
+      if (tutorialProgress) {
+        tutorialProgress.max =
+          tutorialVideo.duration || 0
+
+        tutorialProgress.value = 0
+      }
+
+    }
+  )
+
+  // UPDATE WAKTU
+  tutorialVideo.addEventListener(
+    "timeupdate",
+    () => {
+
+      if (!tutorialVideo.duration) {
+        return
+      }
+
+      if (tutorialCurrentTime) {
+        tutorialCurrentTime.textContent =
+          tutorialFormatTime(
+            tutorialVideo.currentTime
+          )
+      }
+
+      if (tutorialProgress) {
+        tutorialProgress.value =
+          tutorialVideo.currentTime
+      }
+
+    }
+  )
+
+  // SEEK VIDEO
+  tutorialProgress?.addEventListener(
+    "input",
+    () => {
+
+      tutorialVideo.currentTime =
+        Number(
+          tutorialProgress.value
+        )
+
+    }
+  )
+
+  // MUTE
+  tutorialMute?.addEventListener(
+    "click",
+    () => {
+
+      tutorialVideo.muted =
+        !tutorialVideo.muted
+
+      tutorialMute.textContent =
+        tutorialVideo.muted
+          ? "🔇"
+          : "🔊"
+
+    }
+  )
+
+  // SPEED MENU
+  tutorialSpeedButton?.addEventListener(
+    "click",
+    event => {
+
+      event.stopPropagation()
+
+      tutorialSpeed?.classList.toggle(
+        "open"
+      )
+
+    }
+  )
+
+  // PILIH SPEED
+  tutorialSpeedMenu
+    ?.querySelectorAll("button")
+    .forEach(button => {
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          const speed =
+            Number(
+              button.dataset.speed
+            )
+
+          if (!Number.isFinite(speed)) {
+            return
+          }
+
+          tutorialVideo.playbackRate =
+            speed
+
+          if (tutorialSpeedButton) {
+            tutorialSpeedButton.textContent =
+              `${speed}×`
+          }
+
+          tutorialSpeedMenu
+            .querySelectorAll("button")
+            .forEach(item => {
+              item.classList.remove("active")
+            })
+
+          button.classList.add("active")
+
+          tutorialSpeed?.classList.remove(
+            "open"
+          )
+
+        }
+      )
+
+    })
+
+  // TUTUP MENU SPEED KETIKA KLIK DI LUAR
+  document.addEventListener(
+    "click",
+    event => {
+
+      if (
+        tutorialSpeed &&
+        !tutorialSpeed.contains(event.target)
+      ) {
+        tutorialSpeed.classList.remove(
+          "open"
+        )
+      }
+
+    }
+  )
+
+  // FULLSCREEN
+  tutorialFullscreen?.addEventListener(
+    "click",
+    async () => {
+
+      try {
+
+        if (document.fullscreenElement) {
+
+          await document.exitFullscreen()
+
+        } else if (
+          tutorialVideoWrap?.requestFullscreen
+        ) {
+
+          await tutorialVideoWrap.requestFullscreen()
+
+        } else if (
+          tutorialVideo.webkitEnterFullscreen
+        ) {
+
+          tutorialVideo.webkitEnterFullscreen()
+
+        }
+
+      } catch (error) {
+
+        console.error(
+          "Fullscreen tutorial:",
+          error
+        )
+
+      }
+
+    }
+  )
+
+  // LOADING
+  tutorialVideo.addEventListener(
+    "waiting",
+    () => {
+
+      tutorialLoading?.classList.add(
+        "show"
+      )
+
+    }
+  )
+
+  tutorialVideo.addEventListener(
+    "playing",
+    () => {
+
+      tutorialLoading?.classList.remove(
+        "show"
+      )
+
+    }
+  )
+
+  tutorialVideo.addEventListener(
+    "canplay",
+    () => {
+
+      tutorialLoading?.classList.remove(
+        "show"
+      )
+
+    }
+  )
+
+  // ERROR
+  tutorialVideo.addEventListener(
+    "error",
+    () => {
+
+      tutorialLoading?.classList.remove(
+        "show"
+      )
+
+      toast(
+        "Video tutorial gagal dimuat."
+      )
+
+      console.error(
+        "Video tutorial gagal dimuat."
+      )
+
+    }
+  )
+
+  // DEFAULT SPEED
+  tutorialVideo.playbackRate = 1
+
+  // DEFAULT ICON
+  updateTutorialPlayUI()
+
 }
