@@ -624,6 +624,402 @@ letter-spacing:1px;
 color:#aaa;
 }
 
+/* ================= TUTORIAL CARD ================= */
+
+.tutorial-service-card{
+position:relative;
+overflow:hidden;
+border-color:rgba(0,150,255,.45);
+background:
+linear-gradient(
+135deg,
+rgba(0,100,255,.15),
+rgba(0,20,50,.55)
+);
+box-shadow:
+0 0 30px rgba(0,120,255,.08);
+}
+
+.tutorial-service-card::before{
+content:"";
+position:absolute;
+top:-100%;
+left:-30%;
+width:45%;
+height:300%;
+background:
+linear-gradient(
+90deg,
+transparent,
+rgba(255,255,255,.18),
+transparent
+);
+transform:rotate(20deg);
+animation:tutorialShine 4s linear infinite;
+pointer-events:none;
+}
+
+@keyframes tutorialShine{
+0%{
+left:-50%;
+}
+100%{
+left:140%;
+}
+}
+
+.tutorial-badge{
+position:absolute;
+top:15px;
+right:15px;
+padding:6px 9px;
+border-radius:8px;
+background:#087cff;
+color:#fff;
+font-size:7px;
+font-weight:900;
+letter-spacing:1px;
+box-shadow:
+0 0 18px rgba(0,124,255,.5);
+}
+
+/* ================= TUTORIAL VIDEO PLAYER ================= */
+
+.tutorial-player-card{
+border:1px solid rgba(255,255,255,.10);
+border-radius:24px;
+background:rgba(0,0,0,.45);
+overflow:hidden;
+box-shadow:
+0 25px 80px rgba(0,0,0,.45);
+}
+
+.tutorial-video-wrap{
+position:relative;
+background:#000;
+width:100%;
+aspect-ratio:16/9;
+overflow:hidden;
+}
+
+#tutorialVideo{
+display:block;
+width:100%;
+height:100%;
+object-fit:contain;
+background:#000;
+cursor:pointer;
+}
+
+.tutorial-big-play{
+position:absolute;
+left:50%;
+top:50%;
+transform:translate(-50%,-50%);
+width:76px;
+height:76px;
+display:grid;
+place-items:center;
+border-radius:50%;
+background:rgba(0,0,0,.72);
+border:1px solid rgba(255,255,255,.30);
+color:#fff;
+font-size:25px;
+padding-left:4px;
+backdrop-filter:blur(15px);
+box-shadow:
+0 10px 40px rgba(0,0,0,.5),
+0 0 35px rgba(0,130,255,.15);
+cursor:pointer;
+transition:.25s;
+z-index:5;
+}
+
+.tutorial-big-play:hover{
+transform:
+translate(-50%,-50%)
+scale(1.08);
+background:#087cff;
+border-color:#fff;
+box-shadow:
+0 0 45px rgba(0,130,255,.5);
+}
+
+.tutorial-video-wrap.playing .tutorial-big-play{
+opacity:0;
+pointer-events:none;
+}
+
+.tutorial-video-loading{
+position:absolute;
+inset:0;
+display:none;
+align-items:center;
+justify-content:center;
+background:rgba(0,0,0,.20);
+z-index:6;
+}
+
+.tutorial-video-loading.show{
+display:flex;
+}
+
+.tutorial-video-loading span{
+width:35px;
+height:35px;
+border-radius:50%;
+border:3px solid rgba(255,255,255,.2);
+border-top-color:#087cff;
+animation:tutorialSpin .8s linear infinite;
+}
+
+@keyframes tutorialSpin{
+to{
+transform:rotate(360deg);
+}
+}
+
+.tutorial-controls{
+position:absolute;
+left:0;
+right:0;
+bottom:0;
+padding:35px 16px 14px;
+background:
+linear-gradient(
+transparent,
+rgba(0,0,0,.92)
+);
+z-index:7;
+transition:.25s;
+}
+
+.tutorial-video-wrap:not(:hover) .tutorial-controls{
+opacity:.25;
+}
+
+.tutorial-video-wrap:hover .tutorial-controls,
+.tutorial-video-wrap:focus-within .tutorial-controls{
+opacity:1;
+}
+
+.tutorial-progress-row{
+display:flex;
+align-items:center;
+gap:9px;
+margin-bottom:10px;
+}
+
+.tutorial-progress-row span{
+min-width:38px;
+font-size:9px;
+font-variant-numeric:tabular-nums;
+color:#fff;
+}
+
+.tutorial-progress-row span:last-child{
+text-align:right;
+}
+
+.tutorial-progress{
+appearance:none;
+-webkit-appearance:none;
+height:4px;
+flex:1;
+border:0;
+outline:0;
+border-radius:20px;
+background:rgba(255,255,255,.22);
+cursor:pointer;
+}
+
+.tutorial-progress::-webkit-slider-thumb{
+appearance:none;
+-webkit-appearance:none;
+width:12px;
+height:12px;
+border-radius:50%;
+background:#fff;
+box-shadow:
+0 0 12px rgba(0,130,255,.8);
+}
+
+.tutorial-progress::-moz-range-thumb{
+width:12px;
+height:12px;
+border:0;
+border-radius:50%;
+background:#fff;
+}
+
+.tutorial-control-row{
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap:10px;
+}
+
+.tutorial-left-controls,
+.tutorial-right-controls{
+display:flex;
+align-items:center;
+gap:8px;
+}
+
+.video-control{
+width:34px;
+height:34px;
+display:grid;
+place-items:center;
+border:0;
+border-radius:9px;
+background:rgba(255,255,255,.08);
+color:#fff;
+cursor:pointer;
+font-size:12px;
+transition:.2s;
+}
+
+.video-control:hover{
+background:rgba(8,124,255,.85);
+transform:translateY(-1px);
+}
+
+.tutorial-video-title{
+font-size:10px;
+font-weight:700;
+color:rgba(255,255,255,.75);
+margin-left:4px;
+}
+
+.tutorial-speed{
+position:relative;
+}
+
+.tutorial-speed-menu{
+position:absolute;
+right:0;
+bottom:43px;
+display:none;
+min-width:90px;
+padding:6px;
+border:1px solid rgba(255,255,255,.12);
+border-radius:12px;
+background:rgba(5,8,15,.96);
+box-shadow:0 15px 40px rgba(0,0,0,.55);
+backdrop-filter:blur(20px);
+}
+
+.tutorial-speed.open .tutorial-speed-menu{
+display:block;
+}
+
+.tutorial-speed-menu button{
+display:block;
+width:100%;
+padding:8px;
+border:0;
+border-radius:7px;
+background:transparent;
+color:#aaa;
+font-size:10px;
+text-align:left;
+cursor:pointer;
+}
+
+.tutorial-speed-menu button:hover,
+.tutorial-speed-menu button.active{
+background:#087cff;
+color:#fff;
+}
+
+.tutorial-video-info{
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap:20px;
+padding:22px;
+}
+
+.tutorial-video-info small,
+.tutorial-thanks small{
+font-size:8px;
+letter-spacing:2px;
+color:#087cff;
+font-weight:800;
+}
+
+.tutorial-video-info h2{
+margin:5px 0;
+font-size:20px;
+}
+
+.tutorial-video-info p{
+max-width:700px;
+font-size:11px;
+line-height:1.7;
+color:#777;
+}
+
+.tutorial-save{
+flex-shrink:0;
+display:flex;
+align-items:center;
+gap:8px;
+padding:12px 17px;
+border-radius:12px;
+background:#087cff;
+color:#fff;
+text-decoration:none;
+font-size:10px;
+font-weight:800;
+box-shadow:0 8px 25px rgba(0,124,255,.25);
+transition:.2s;
+}
+
+.tutorial-save:hover{
+transform:translateY(-2px);
+box-shadow:0 12px 35px rgba(0,124,255,.4);
+}
+
+.tutorial-thanks{
+margin-top:18px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap:20px;
+padding:25px;
+border:1px solid rgba(255,255,255,.08);
+border-radius:22px;
+background:rgba(255,255,255,.025);
+}
+
+.tutorial-thanks h2{
+margin:6px 0;
+font-size:18px;
+}
+
+.tutorial-thanks p{
+font-size:11px;
+color:#777;
+}
+
+.tutorial-thanks>a{
+flex-shrink:0;
+padding:13px 18px;
+border-radius:12px;
+background:#fff;
+color:#000;
+font-size:10px;
+font-weight:900;
+text-decoration:none;
+transition:.2s;
+}
+
+.tutorial-thanks>a:hover{
+transform:translateY(-2px);
+box-shadow:0 10px 30px rgba(255,255,255,.15);
+}
 
 /* ================= PAGE HEADER ================= */
 
@@ -2282,7 +2678,6 @@ background:rgba(3,28,60,.90);
 border-right-color:var(--line);
 }
 
-
 /* Aksen dinamis */
 .nav-item.active{
 background:linear-gradient(90deg,var(--accent-soft),rgba(4,53,116,.18));
@@ -2431,6 +2826,19 @@ background:radial-gradient(circle at 70% 25%,rgba(0,130,255,.65),transparent 35%
 }
 .preview-original{
 background:radial-gradient(circle at 60% 25%,rgba(0,180,255,.30),transparent 38%),linear-gradient(135deg,#062b5c,#041c40,#020b1d);
+}
+.preview-video{
+background:linear-gradient(135deg,#050914,#08315e,#00030a);
+position:relative;
+}
+.preview-video:after{
+content:"▶";
+display:grid;
+place-items:center;
+height:100%;
+font-size:20px;
+color:#fff;
+text-shadow:0 0 15px var(--accent);
 }
 .color-row{
 position:relative;
@@ -2589,234 +2997,270 @@ margin:0;
 .settings-reset-card{align-items:flex-start;flex-direction:column;}
 }
 
-/* =========================
-   TUTORIAL FEATURE
-========================= */
-.tutorial-nav-item{
+/* =========================================================
+   MAXIEL LIVE COLOR SYSTEM
+   Semua warna utama berubah langsung dari Pengaturan.
+   ========================================================= */
+body{
+background:var(--dashboard-bg,#020817)!important;
+color:var(--text-main,#f4f7ff);
+}
+
+.space{
+background:var(--dashboard-bg,#020817)!important;
+}
+
+.topbar{
+background:var(--topbar-bg,rgba(1,7,18,.94))!important;
+}
+
+.sidebar{
+background:var(--sidebar-bg,rgba(2,12,28,.96))!important;
+}
+
+.dashboard-hero,
+.dashboard-card,
+.service-card,
+.platform-card,
+.tool-card,
+.developer-card,
+.settings-card{
+background:var(--card-bg,rgba(3,20,46,.78))!important;
+}
+
+.dashboard-card strong,
+.dashboard-hero .hero-title h1,
+.service-card h3,
+.platform-card strong,
+.tool-card h3,
+.developer-name,
+.settings-card h3{
+color:var(--text-main,#f4f7ff);
+}
+
+.platform-card.selected,
+.platform-card:hover,
+.service-card:hover{
+border-color:var(--accent);
+}
+
+input,
+textarea,
+.download-box{
+background:color-mix(in srgb,var(--dashboard-bg,#020817) 78%,var(--card-bg,rgba(3,20,46,.78)))!important;
+}
+
+/* =========================================================
+   SPECIFIC COLOR SETTINGS UI
+   ========================================================= */
+.specific-colors{
 position:relative;
+z-index:1;
+display:grid;
+grid-template-columns:repeat(2,minmax(0,1fr));
+gap:10px;
 }
-.tutorial-nav-item em{
-margin-left:auto;
-font-style:normal;
-font-size:8px;
-font-weight:900;
-letter-spacing:1px;
-color:#fff;
-padding:4px 7px;
-border-radius:999px;
-background:var(--accent,#087cff);
-box-shadow:0 0 15px var(--accent-soft,rgba(8,124,255,.35));
-animation:tutorialPulse 1.8s ease-in-out infinite;
-}
-@keyframes tutorialPulse{
-0%,100%{transform:scale(1);box-shadow:0 0 10px var(--accent-soft,rgba(8,124,255,.25));}
-50%{transform:scale(1.08);box-shadow:0 0 24px var(--accent-soft,rgba(8,124,255,.55));}
-}
-.tutorial-service-card{
-position:relative;
-overflow:hidden;
-border:1px solid var(--accent,#087cff);
-background:linear-gradient(135deg,var(--accent-soft,rgba(8,124,255,.18)),rgba(0,0,0,.35));
-box-shadow:0 0 0 1px var(--accent-soft,rgba(8,124,255,.18)),0 18px 50px rgba(0,0,0,.28),0 0 35px var(--accent-soft,rgba(8,124,255,.16));
-transform:translateY(-2px);
-}
-.tutorial-service-card:before{
-content:"";
-position:absolute;
-inset:-2px;
-pointer-events:none;
-border-radius:inherit;
-background:linear-gradient(90deg,transparent,var(--accent,#087cff),transparent);
-opacity:.55;
-transform:translateX(-100%);
-animation:tutorialSweep 3s linear infinite;
-}
-@keyframes tutorialSweep{
-0%{transform:translateX(-100%)}
-100%{transform:translateX(100%)}
-}
-.tutorial-service-card .tutorial-badge{
-position:absolute;
-top:15px;
-right:15px;
-z-index:2;
-font-size:8px;
-font-weight:900;
-letter-spacing:1px;
-color:#fff;
-padding:5px 8px;
-border-radius:999px;
-background:var(--accent,#087cff);
-box-shadow:0 0 18px var(--accent-soft,rgba(8,124,255,.4));
-}
-.tutorial-service-card .service-icon{
-background:var(--accent,#087cff)!important;
-color:#fff!important;
-box-shadow:0 0 25px var(--accent-soft,rgba(8,124,255,.45));
-}
-.tutorial-service-card>span{
-color:var(--accent,#087cff)!important;
-font-weight:900;
-}
-.tutorial-heading{
+
+.specific-color{
 display:flex;
-align-items:flex-start;
+align-items:center;
 justify-content:space-between;
-gap:20px;
-}
-.tutorial-live-badge{
-flex:none;
-padding:8px 12px;
-border-radius:999px;
-background:var(--accent-soft,rgba(8,124,255,.16));
-border:1px solid var(--accent,#087cff);
-color:#fff;
-font-size:9px;
-font-weight:900;
-letter-spacing:1px;
-box-shadow:0 0 20px var(--accent-soft,rgba(8,124,255,.28));
-}
-.tutorial-card{
-margin-top:25px;
-padding:18px;
-border:1px solid rgba(255,255,255,.10);
-border-radius:24px;
-background:rgba(2,10,23,.74);
-backdrop-filter:blur(20px);
--webkit-backdrop-filter:blur(20px);
-box-shadow:0 25px 70px rgba(0,0,0,.4);
-}
-.tutorial-video-wrap{
-position:relative;
-overflow:hidden;
-border-radius:18px;
-background:#000;
-aspect-ratio:16/9;
+gap:12px;
+min-height:66px;
+padding:11px 12px;
 border:1px solid rgba(255,255,255,.08);
-}
-.tutorial-video-wrap video{
-width:100%;
-height:100%;
-object-fit:contain;
-display:block;
-background:#000;
-}
-.tutorial-video-top{
-position:absolute;
-left:0;
-right:0;
-top:0;
-padding:13px 15px;
-display:flex;
-justify-content:space-between;
-font-size:9px;
-font-weight:900;
-letter-spacing:1px;
-background:linear-gradient(180deg,rgba(0,0,0,.72),transparent);
-pointer-events:none;
-}
-.tutorial-controls{
-display:flex;
-flex-wrap:wrap;
-gap:9px;
-margin-top:15px;
-}
-.tutorial-controls button,
-.tutorial-save{
-border:1px solid rgba(255,255,255,.12);
-border-radius:11px;
-padding:10px 13px;
-background:rgba(255,255,255,.055);
-color:#fff;
-font-size:10px;
-font-weight:800;
-text-decoration:none;
+border-radius:15px;
+background:rgba(255,255,255,.025);
 cursor:pointer;
 transition:.2s ease;
 }
-.tutorial-controls button:hover,
-.tutorial-save:hover{
+
+.specific-color:hover{
 transform:translateY(-2px);
-border-color:var(--accent,#087cff);
-background:var(--accent-soft,rgba(8,124,255,.16));
-box-shadow:0 8px 22px var(--accent-soft,rgba(8,124,255,.16));
+border-color:var(--accent);
+background:var(--accent-soft);
 }
-.tutorial-main-btn,
-.tutorial-save{
-background:var(--accent,#087cff)!important;
-border-color:var(--accent,#087cff)!important;
-box-shadow:0 8px 24px var(--accent-soft,rgba(8,124,255,.25));
+
+.specific-color span{
+min-width:0;
 }
-.tutorial-progress{
-display:flex;
-align-items:center;
-gap:10px;
+
+.specific-color b{
+display:block;
+font-size:11px;
+color:var(--text-main,#f4f7ff);
+}
+
+.specific-color small{
+display:block;
+margin-top:4px;
+font-size:8px!important;
+line-height:1.35;
+letter-spacing:0!important;
+color:#7185a5!important;
+}
+
+.specific-color input[type=color]{
+width:42px;
+height:42px;
+flex:0 0 42px;
+padding:3px;
+border:1px solid rgba(255,255,255,.16);
+border-radius:12px;
+background:transparent;
+cursor:pointer;
+}
+
+.live-color-note{
+position:relative;
+z-index:1;
 margin-top:13px;
 font-size:9px;
-color:#8da1c0;
+color:#7185a5;
 }
-.tutorial-progress input{
-flex:1;
-accent-color:var(--accent,#087cff);
-cursor:pointer;
+
+/* =========================================================
+   3D MUSIC BUTTON - KANAN TENGAH
+   ========================================================= */
+.music-player{
+right:14px!important;
+bottom:auto!important;
+top:50%!important;
+transform:translateY(-50%)!important;
+perspective:1000px;
 }
-.tutorial-steps{
+
+.music-mini{
+position:relative;
+width:58px!important;
+height:58px!important;
+border:1px solid rgba(255,255,255,.16)!important;
+border-radius:15px!important;
+background:linear-gradient(145deg,rgba(20,40,70,.96),rgba(1,7,18,.98))!important;
+transform-style:preserve-3d;
+box-shadow:
+0 7px 0 rgba(0,0,0,.45),
+0 13px 28px rgba(0,0,0,.55),
+inset 2px 2px 5px rgba(255,255,255,.10),
+inset -3px -4px 8px rgba(0,0,0,.65)!important;
+transition:transform .22s ease,box-shadow .22s ease;
+}
+
+.music-mini:hover{
+transform:translateY(-3px) rotateX(8deg) rotateY(-8deg)!important;
+box-shadow:
+0 10px 0 rgba(0,0,0,.42),
+0 20px 38px rgba(0,0,0,.62),
+inset 2px 2px 6px rgba(255,255,255,.13),
+inset -4px -5px 10px rgba(0,0,0,.7)!important;
+}
+
+.music-mini:active{
+transform:translateY(3px) scale(.94)!important;
+box-shadow:
+0 3px 0 rgba(0,0,0,.45),
+0 8px 18px rgba(0,0,0,.55),
+inset 2px 2px 6px rgba(255,255,255,.08),
+inset -3px -4px 8px rgba(0,0,0,.7)!important;
+}
+
+.music-mini span{
+position:relative;
+z-index:3;
 display:grid;
-grid-template-columns:repeat(4,1fr);
-gap:10px;
-margin-top:18px;
-}
-.tutorial-steps div{
-min-height:75px;
-padding:13px;
-border-radius:14px;
-background:rgba(255,255,255,.035);
-border:1px solid rgba(255,255,255,.07);
-display:flex;
-flex-direction:column;
-gap:7px;
-}
-.tutorial-steps b{
-color:var(--accent,#087cff);
-font-size:10px;
-}
-.tutorial-steps span{
-font-size:10px;
-color:#aab9d0;
-line-height:1.5;
-}
-.tutorial-thanks{
-display:flex;
-align-items:center;
-justify-content:center;
-gap:8px;
+place-items:center;
 width:100%;
-margin-top:18px;
-padding:14px 18px;
-border-radius:14px;
-text-decoration:none;
+height:100%;
+font-size:24px!important;
 color:#fff;
-font-size:11px;
-font-weight:900;
-letter-spacing:.4px;
-background:linear-gradient(135deg,var(--accent,#087cff),rgba(0,0,0,.35));
-border:1px solid var(--accent,#087cff);
-box-shadow:0 10px 30px var(--accent-soft,rgba(8,124,255,.25));
-transition:.2s ease;
+text-shadow:
+0 2px 0 rgba(0,0,0,.65),
+0 0 14px var(--accent)!important;
+transform:translateZ(12px);
 }
-.tutorial-thanks:hover{
-transform:translateY(-2px);
-box-shadow:0 14px 35px var(--accent-soft,rgba(8,124,255,.38));
+
+.music-mini:before{
+inset:-3px!important;
+border-radius:17px!important;
+padding:3px!important;
+background:conic-gradient(
+from 0deg,
+#ff004c,
+#ff8a00,
+#ffee00,
+#00ff66,
+#00c8ff,
+#7b2cff,
+#ff00c8,
+#ff004c
+)!important;
+animation:musicEdge 2.8s linear infinite!important;
+filter:drop-shadow(0 0 7px rgba(0,180,255,.45));
 }
-@media(max-width:700px){
-.tutorial-heading{display:block;}
-.tutorial-live-badge{display:inline-block;margin-top:13px;}
-.tutorial-steps{grid-template-columns:1fr 1fr;}
-.tutorial-card{padding:11px;border-radius:19px;}
-.tutorial-video-wrap{border-radius:14px;}
-.tutorial-controls button,.tutorial-save{padding:9px 10px;font-size:9px;}
+
+.music-mini:after{
+inset:-10px!important;
+border-radius:20px!important;
+filter:blur(9px)!important;
+opacity:.72;
+animation:musicEdge 2.8s linear infinite reverse!important;
 }
-@media(max-width:420px){
-.tutorial-steps{grid-template-columns:1fr;}
-.tutorial-controls>*{flex:1 1 calc(50% - 9px);text-align:center;}
+
+.music-mini.music-on{
+box-shadow:
+0 7px 0 rgba(0,0,0,.45),
+0 0 28px var(--accent-soft),
+0 16px 35px rgba(0,0,0,.65),
+inset 2px 2px 6px rgba(255,255,255,.12),
+inset -4px -5px 10px rgba(0,0,0,.7)!important;
+}
+
+@media(max-width:600px){
+.music-player{
+right:10px!important;
+}
+.music-mini{
+width:54px!important;
+height:54px!important;
+}
+.specific-colors{
+grid-template-columns:1fr;
+}
+}
+.tutorial-video-info{
+flex-direction:column;
+align-items:stretch;
+}
+
+.tutorial-save{
+justify-content:center;
+}
+
+.tutorial-thanks{
+flex-direction:column;
+align-items:stretch;
+}
+
+.tutorial-thanks>a{
+text-align:center;
+}
+
+.tutorial-video-title{
+display:none;
+}
+
+.tutorial-controls{
+padding-left:10px;
+padding-right:10px;
+}
+
+.video-control{
+width:32px;
+height:32px;
+}
+
+.tutorial-big-play{
+width:62px;
+height:62px;
+font-size:21px;
 }
