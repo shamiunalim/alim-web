@@ -71,6 +71,7 @@
   id="bgMusic"
   preload="auto">
 </audio>
+
 <div class="space"></div>
 <div class="aurora"></div>
 <div class="stars"></div>
@@ -111,6 +112,15 @@
         <b>Dashboard</b>
         <small>Beranda</small>
       </div>
+    </button>
+
+    <button class="nav-item tutorial-nav-item" data-page="tutorial">
+      <span>▶</span>
+      <div>
+        <b>Tutorial</b>
+        <small>Cara menggunakan website</small>
+      </div>
+      <em>BARU</em>
     </button>
 
     <button class="nav-item" data-page="downloader">
@@ -224,6 +234,14 @@
       <span>BUKA FITUR →</span>
     </button>
 
+    <button class="service-card tutorial-service-card" data-open="tutorial">
+      <div class="service-icon">▶</div>
+      <div class="tutorial-badge">TUTORIAL • BARU</div>
+      <h3>Tutorial Penggunaan</h3>
+      <p>Pelajari cara menggunakan Maxiel Web dari menit 0 sampai selesai.</p>
+      <span>▶ MULAI TUTORIAL →</span>
+    </button>
+
     <button class="service-card" data-open="converter">
       <div class="service-icon">⇄</div>
       <h3>Converter</h3>
@@ -257,6 +275,61 @@
 </section>
 
 
+<!-- ================= TUTORIAL ================= -->
+
+<section class="page" id="tutorial">
+
+  <div class="page-header tutorial-heading">
+    <div>
+      <small>TUTORIAL PENGGUNAAN</small>
+      <h2>Cara Menggunakan Maxiel Web</h2>
+      <p>Ikuti video dari menit 0 sampai selesai untuk melihat alur penggunaan website.</p>
+    </div>
+    <span class="tutorial-live-badge">● VIDEO TUTORIAL</span>
+  </div>
+
+  <div class="tutorial-card">
+    <div class="tutorial-video-wrap">
+      <video id="tutorialVideo" preload="metadata" playsinline>
+        <source src="https://cdn.nekohime.site/file/j3rtce2f.mp4" type="video/mp4">
+        Browser kamu tidak mendukung pemutar video.
+      </video>
+      <div class="tutorial-video-top">
+        <span>MAXIEL WEB</span>
+        <span id="tutorialTime">00:00 / 00:00</span>
+      </div>
+    </div>
+
+    <div class="tutorial-controls">
+      <button type="button" id="tutorialPlay" class="tutorial-main-btn">▶ Play</button>
+      <button type="button" id="tutorialPause">Ⅱ Pause</button>
+      <button type="button" id="tutorialSlow">🐢 Slow 0.5×</button>
+      <button type="button" id="tutorialSpeed">⚡ Speed 1.5×</button>
+      <button type="button" id="tutorialNormal">1× Normal</button>
+      <a id="tutorialSave" class="tutorial-save" href="https://cdn.nekohime.site/file/j3rtce2f.mp4" download="Maxiel-Nuoye-Tutorial.mp4" target="_blank" rel="noopener">⬇ Save Video</a>
+    </div>
+
+    <div class="tutorial-progress">
+      <span>0:00</span>
+      <input id="tutorialSeek" type="range" min="0" max="100" value="0" step="0.1" aria-label="Progress video tutorial">
+      <span id="tutorialDuration">0:00</span>
+    </div>
+
+    <div class="tutorial-steps">
+      <div><b>01</b><span>Buka Dashboard</span></div>
+      <div><b>02</b><span>Pilih fitur</span></div>
+      <div><b>03</b><span>Masukkan data yang diperlukan</span></div>
+      <div><b>04</b><span>Lihat hasil dan gunakan fitur lainnya</span></div>
+    </div>
+
+    <a class="tutorial-thanks" href="https://wa.me/6287766443103?text=terima%20kasih%20bang%20gantenggg%20%E2%9D%A4%EF%B8%8F" target="_blank" rel="noopener">
+      <span>🤍</span> Terima Kasih Bang Gantenggg
+    </a>
+  </div>
+
+</section>
+
+
 <!-- ================= SETTINGS ================= -->
 
 <section class="page" id="settings">
@@ -283,51 +356,33 @@
         <button class="theme-option" type="button" data-theme="blue">
           <span class="theme-preview preview-blue"></span>
           <strong>Blue Dashboard</strong>
-          <small>Dashboard biru gelap dengan glow dan grid.</small>
+          <small>Navy biru seperti tampilan sekarang</small>
         </button>
 
         <button class="theme-option" type="button" data-theme="original">
           <span class="theme-preview preview-original"></span>
           <strong>Maxiel Nuoye New</strong>
-          <small>Kembali ke tampilan background Maxiel Nuoye New.</small>
+          <small>Background dashboard Maxiel Nuoye New</small>
         </button>
+
       </div>
     </div>
 
-    <div class="settings-card settings-color-card">
+    <div class="settings-card">
       <div class="settings-card-head">
         <div>
-          <small>WARNA DASHBOARD</small>
-          <h3>Atur Warna Secara Spesifik</h3>
+          <small>WARNA AKSEN</small>
+          <h3>Warna Menu Aktif</h3>
         </div>
-        <span class="settings-badge" id="colorStatus">CUSTOM</span>
+        <span class="settings-badge" id="colorStatus">#087CFF</span>
       </div>
 
-      <div class="specific-colors">
-        <label class="specific-color">
-          <span><b>Menu aktif</b><small>Warna menu yang sedang dibuka</small></span>
-          <input id="accentColor" type="color" value="#087cff" aria-label="Warna menu aktif">
-        </label>
-        <label class="specific-color">
-          <span><b>Background</b><small>Warna dasar seluruh dashboard</small></span>
-          <input id="dashboardBgColor" type="color" value="#020817" aria-label="Warna background dashboard">
-        </label>
-        <label class="specific-color">
-          <span><b>Topbar</b><small>Warna bar bagian atas</small></span>
-          <input id="topbarColor" type="color" value="#010712" aria-label="Warna topbar">
-        </label>
-        <label class="specific-color">
-          <span><b>Sidebar</b><small>Warna panel menu samping</small></span>
-          <input id="sidebarColor" type="color" value="#020c1c" aria-label="Warna sidebar">
-        </label>
-        <label class="specific-color">
-          <span><b>Card</b><small>Warna kartu dashboard dan fitur</small></span>
-          <input id="cardColor" type="color" value="#03202e" aria-label="Warna card">
-        </label>
-        <label class="specific-color">
-          <span><b>Teks utama</b><small>Warna judul dan teks penting</small></span>
-          <input id="textColor" type="color" value="#f4f7ff" aria-label="Warna teks utama">
-        </label>
+      <div class="color-row">
+        <input id="accentColor" type="color" value="#087cff" aria-label="Pilih warna aksen">
+        <div>
+          <strong>Pilih warna sendiri</strong>
+          <small>Dipakai pada menu aktif, tombol dan glow.</small>
+        </div>
       </div>
 
       <div class="color-presets">
@@ -338,7 +393,6 @@
         <button type="button" class="color-preset" data-color="#00d084" style="--preset:#00d084" aria-label="Hijau"></button>
         <button type="button" class="color-preset" data-color="#ff8a00" style="--preset:#ff8a00" aria-label="Oranye"></button>
       </div>
-      <p class="live-color-note">Perubahan warna diterapkan langsung tanpa reload.</p>
     </div>
 
     <div class="settings-card settings-reset-card">
