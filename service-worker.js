@@ -1,4 +1,4 @@
-const CACHE_NAME = "maxiel-web-v1"
+const CACHE_NAME = "maxiel-ai-v2"
 const APP_SHELL = [
   "./",
   "./index.html",
