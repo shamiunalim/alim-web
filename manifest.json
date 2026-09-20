@@ -1,7 +1,7 @@
 {
   "name": "Maxiel",
   "short_name": "Maxiel",
-  "description": "Maxiel Web - Downloader, Converter & Tools",
+  "description": "Maxiel Web - Downloader, Converter, Tools & AI",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
