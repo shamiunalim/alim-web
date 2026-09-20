@@ -2638,81 +2638,74 @@ if ("serviceWorker" in navigator) {
   })
 }
 
-// ================= MAXIEL AI / WORKER =================
-const aiWorkerKey = "maxiel_ai_worker_url"
+// ================= MAXIEL AI / SERVICE WORKER =================
+const aiResponseKey = "maxiel_ai_response_mode"
+const aiAutoVoiceKey = "maxiel_ai_auto_voice"
 const aiForm = document.getElementById("aiForm")
 const aiInput = document.getElementById("aiInput")
 const aiSend = document.getElementById("aiSend")
 const aiMessages = document.getElementById("aiMessages")
 const aiTyping = document.getElementById("aiTyping")
 const aiClear = document.getElementById("aiClear")
-const aiStatusPill = document.getElementById("aiStatusPill")
-const aiWorkerUrl = document.getElementById("aiWorkerUrl")
-const saveAiWorker = document.getElementById("saveAiWorker")
+const aiResponseStatus = document.getElementById("aiResponseStatus")
+const aiAutoVoice = document.getElementById("aiAutoVoice")
+const aiResponseOptions = document.querySelectorAll("[data-ai-response]")
 const testAiWorker = document.getElementById("testAiWorker")
-const aiWorkerStatus = document.getElementById("aiWorkerStatus")
 
-function normalizeAiWorkerUrl(value){
-  return String(value || "").trim().replace(/\/$/, "").replace(/\/ai$/, "")
+function getAiResponseMode(){
+  return localStorage.getItem(aiResponseKey) === "voice" ? "voice" : "text"
 }
 
-function getAiWorkerUrl(){
-  return normalizeAiWorkerUrl(localStorage.getItem(aiWorkerKey) || "")
+function setAiResponseMode(mode){
+  const value = mode === "voice" ? "voice" : "text"
+  localStorage.setItem(aiResponseKey,value)
+  aiResponseOptions.forEach(button => {
+    button.classList.toggle("active",button.dataset.aiResponse === value)
+  })
+  if(aiResponseStatus) aiResponseStatus.textContent = value.toUpperCase()
 }
 
-function setAiWorkerStatus(connected=false){
-  const url = getAiWorkerUrl()
-  const configured = Boolean(url)
-
-  if(aiWorkerUrl) aiWorkerUrl.value = url
-
-  if(aiWorkerStatus){
-    aiWorkerStatus.textContent = connected ? "TERHUBUNG" : configured ? "SIAP DITES" : "BELUM DIATUR"
-  }
-
-  if(aiStatusPill){
-    aiStatusPill.textContent = connected ? "WORKER ONLINE" : configured ? "WORKER SIAP" : "WORKER BELUM DIATUR"
-  }
+function formatAiTime(){
+  return new Date().toLocaleTimeString("id-ID",{
+    hour:"2-digit",
+    minute:"2-digit"
+  })
 }
 
 function addAiMessage(text,type="bot"){
   const message = document.createElement("div")
   message.className = `ai-message ai-${type}`
-
-  const label = document.createElement("div")
-  label.className = "ai-message-label"
-  label.textContent = type === "user" ? "KAMU" : "MAXIEL AI"
-
-  const content = document.createElement("div")
-  content.textContent = text
-
-  message.append(label,content)
+  const bubble = document.createElement("div")
+  bubble.className = "ai-bubble"
+  bubble.textContent = text
+  const time = document.createElement("span")
+  time.className = "ai-time"
+  time.textContent = type === "user"
+    ? `${formatAiTime()} ✓✓`
+    : formatAiTime()
+  bubble.appendChild(time)
+  message.appendChild(bubble)
   aiMessages?.appendChild(message)
   aiMessages?.scrollTo({
-    top: aiMessages.scrollHeight,
-    behavior: "smooth"
+    top:aiMessages.scrollHeight,
+    behavior:"smooth"
   })
+  return bubble
 }
 
 function setAiTyping(show){
   aiTyping?.classList.toggle("show",show)
-  if(show && aiMessages){
-    aiMessages.scrollTo({
-      top: aiMessages.scrollHeight,
-      behavior: "smooth"
+  if(show){
+    aiMessages?.scrollTo({
+      top:aiMessages.scrollHeight,
+      behavior:"smooth"
     })
   }
 }
 
 async function createAIRequest(query){
-  const worker = getAiWorkerUrl()
-
-  if(!worker){
-    throw new Error("URL AI Worker belum diatur. Buka Pengaturan → AI Worker.")
-  }
-
   const response = await fetch(
-    `${worker}/ai?query=${encodeURIComponent(query)}`,
+    `/ai?query=${encodeURIComponent(query)}`,
     {
       method:"GET",
       headers:{"Accept":"application/json"},
@@ -2724,20 +2717,28 @@ async function createAIRequest(query){
   try{
     result = await response.json()
   }catch{
-    throw new Error("Worker mengembalikan data yang tidak valid.")
+    throw new Error("Service Worker belum aktif atau respons AI tidak valid.")
   }
 
   if(!response.ok || result?.status !== 200){
-    throw new Error(result?.error || `Worker HTTP ${response.status}`)
+    throw new Error(result?.error || `AI HTTP ${response.status}`)
   }
 
   const answer = result?.data?.response
-
-  if(!answer){
-    throw new Error("Worker tidak memberikan jawaban AI.")
-  }
+  if(!answer) throw new Error("AI tidak memberikan jawaban.")
 
   return answer
+}
+
+function speakAi(text){
+  if(!("speechSynthesis" in window)) return false
+  window.speechSynthesis.cancel()
+  const utterance = new SpeechSynthesisUtterance(text)
+  utterance.lang = "id-ID"
+  utterance.rate = 1
+  utterance.pitch = 1
+  window.speechSynthesis.speak(utterance)
+  return true
 }
 
 async function submitAiMessage(){
@@ -2754,11 +2755,17 @@ async function submitAiMessage(){
     const answer = await createAIRequest(query)
     setAiTyping(false)
     addAiMessage(answer,"bot")
-    setAiWorkerStatus(true)
+
+    if(getAiResponseMode() === "voice" &&
+       aiAutoVoice?.checked !== false){
+      speakAi(answer)
+    }
   }catch(error){
     setAiTyping(false)
-    addAiMessage(`Gagal menghubungi AI Worker.\n\n${error?.message || "Terjadi kesalahan."}`,"bot")
-    setAiWorkerStatus(false)
+    addAiMessage(
+      `Maaf, AI sedang mengalami masalah.\n\n${error?.message || "Coba lagi."}`,
+      "bot"
+    )
   }finally{
     aiSend.disabled = false
     aiInput?.focus()
@@ -2784,67 +2791,63 @@ aiInput?.addEventListener("input",() => {
 
 aiClear?.addEventListener("click",() => {
   if(!aiMessages) return
-  aiMessages.innerHTML = ""
-  addAiMessage("Chat sudah dibersihkan. Silakan kirim pertanyaan baru.","bot")
+  if("speechSynthesis" in window) window.speechSynthesis.cancel()
+  aiMessages.innerHTML = `
+    <div class="ai-date-chip">HARI INI</div>
+    <div class="ai-message ai-bot">
+      <div class="ai-bubble">
+        Chat dibersihkan. Silakan kirim pesan baru.
+        <span class="ai-time">${formatAiTime()}</span>
+      </div>
+    </div>
+  `
 })
 
-saveAiWorker?.addEventListener("click",() => {
-  const url = normalizeAiWorkerUrl(aiWorkerUrl?.value)
+aiResponseOptions.forEach(button => {
+  button.addEventListener("click",() => {
+    setAiResponseMode(button.dataset.aiResponse)
+    if(button.dataset.aiResponse !== "voice" &&
+       "speechSynthesis" in window){
+      window.speechSynthesis.cancel()
+    }
+    toast(
+      button.dataset.aiResponse === "voice"
+        ? "Mode Voice aktif."
+        : "Mode Text aktif."
+    )
+  })
+})
 
-  if(!url){
-    localStorage.removeItem(aiWorkerKey)
-    setAiWorkerStatus(false)
-    toast("URL AI Worker dikosongkan.")
-    return
-  }
-
-  try{
-    const parsed = new URL(url)
-    if(parsed.protocol !== "https:") throw new Error()
-  }catch{
-    toast("URL Worker harus berupa HTTPS yang valid.")
-    return
-  }
-
-  localStorage.setItem(aiWorkerKey,url)
-  setAiWorkerStatus(false)
-  toast("URL AI Worker berhasil disimpan.")
+aiAutoVoice?.addEventListener("change",() => {
+  localStorage.setItem(
+    aiAutoVoiceKey,
+    aiAutoVoice.checked ? "true" : "false"
+  )
 })
 
 testAiWorker?.addEventListener("click",async() => {
-  const url = normalizeAiWorkerUrl(aiWorkerUrl?.value || getAiWorkerUrl())
-
-  if(!url){
-    toast("Masukkan URL AI Worker terlebih dahulu.")
-    return
-  }
-
-  localStorage.setItem(aiWorkerKey,url)
+  if(testAiWorker.disabled) return
   testAiWorker.disabled = true
-  testAiWorker.textContent = "MENGUJI..."
-
+  testAiWorker.textContent = "MENGETES..."
   try{
-    const response = await fetch(`${url}/ai?query=${encodeURIComponent("ping")}`,{
-      method:"GET",
-      headers:{"Accept":"application/json"},
-      cache:"no-store"
-    })
-
-    const result = await response.json()
-
-    if(!response.ok || result?.status !== 200){
-      throw new Error(result?.error || `HTTP ${response.status}`)
-    }
-
-    setAiWorkerStatus(true)
-    toast("AI Worker terhubung dan Public AI merespons.")
+    const answer = await createAIRequest("Balas singkat: koneksi berhasil.")
+    toast("AI berhasil merespons.")
+    console.log("AI TEST:",answer)
   }catch(error){
-    setAiWorkerStatus(false)
-    toast(`Tes Worker gagal: ${error?.message || "koneksi gagal"}`)
+    toast(error?.message || "Tes AI gagal.")
   }finally{
     testAiWorker.disabled = false
-    testAiWorker.textContent = "TES KONEKSI"
+    testAiWorker.textContent = "TES AI"
   }
 })
 
-setAiWorkerStatus(false)
+setAiResponseMode(getAiResponseMode())
+if(aiAutoVoice){
+  aiAutoVoice.checked =
+    localStorage.getItem(aiAutoVoiceKey) !== "false"
+}
+
+// Pastikan Service Worker sudah terdaftar sebelum AI digunakan.
+if("serviceWorker" in navigator){
+  navigator.serviceWorker.ready.catch(() => {})
+}
