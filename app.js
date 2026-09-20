@@ -2277,73 +2277,16 @@ function addAIMessage(text,type){
 }
 
 async function askMaxielAI(query){
-  const url=`https://api.fromscratch.web.id/v1/api/ai/publicai?query=${encodeURIComponent(query)}`
-
-  try{
-    const response=await fetch(url,{
-      method:"GET",
-      headers:{
-        Accept:"application/json"
-      },
-      cache:"no-store"
-    })
-
-    if(!response.ok){
-      let detail=""
-      try{
-        detail=await response.text()
-      }catch{}
-
-      throw new Error(
-        `HTTP ${response.status} ${response.statusText}`+
-        (detail?`\nResponse: ${detail.slice(0,1000)}`:"")
-      )
-    }
-
-    const raw=await response.text()
-
-    let result
-    try{
-      result=JSON.parse(raw)
-    }catch{
-      throw new Error(
-        `Response bukan JSON.\n`+
-        `Isi response: ${raw.slice(0,1000)}`
-      )
-    }
-
-    if(result?.status && Number(result.status)!==200){
-      throw new Error(
-        `API mengembalikan status ${result.status}\n`+
-        `${JSON.stringify(result).slice(0,1500)}`
-      )
-    }
-
-    const answer=result?.data?.response
-
-    if(!answer){
-      throw new Error(
-        `Response AI tidak memiliki data.response.\n`+
-        `${JSON.stringify(result).slice(0,1500)}`
-      )
-    }
-
-    return answer
-
-  }catch(error){
-    if(error instanceof TypeError){
-      throw new Error(
-        `FETCH ERROR / kemungkinan CORS atau koneksi API.\n`+
-        `Pesan browser: ${error.message}\n`+
-        `Endpoint: ${url}`
-      )
-    }
-
-    throw new Error(
-      `${error.message}\n`+
-      `Endpoint: ${url}`
-    )
+  const url=`https://maxiel-ganteng.shamiunaje.workers.dev/api/ai?query=${encodeURIComponent(query)}`
+  const response=await fetch(url,{method:"GET",headers:{Accept:"application/json"},cache:"no-store"})
+  if(!response.ok){
+    const detail=await response.text()
+    throw new Error(`AI HTTP ${response.status}\n${detail.slice(0,1000)}`)
   }
+  const result=await response.json()
+  const answer=result?.data?.response
+  if(!answer) throw new Error("Respons AI kosong")
+  return answer
 }
 
 async function sendAIMessage(){
@@ -2367,18 +2310,9 @@ async function sendAIMessage(){
     const answer=await askMaxielAI(query)
     addAIMessage(answer,"bot")
   }catch(error){
-  console.error("Maxiel AI ERROR:",error)
-
-  const detail=[
-    "⚠️ MAXIEL AI ERROR",
-    "",
-    error?.message || "Unknown error",
-    "",
-    "Waktu: "+new Date().toLocaleString("id-ID")
-  ].join("\n")
-
-  addAIMessage(detail,"bot")
-}finally{
+    console.error("Maxiel AI:",error)
+    addAIMessage("Maaf, Maxiel AI sedang mengalami masalah. Coba lagi beberapa saat lagi.","bot")
+  }finally{
     aiTyping.classList.remove("show")
     aiInput.disabled=false
     aiSend.disabled=false
