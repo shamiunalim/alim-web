@@ -1,0 +1,6 @@
+name = "maxiel-ai"
+main = "maxiel-ai-worker.js"
+compatibility_date = "2026-09-20"
+routes = [
+  { pattern = "naxiel.runs-on.dev/api/*", zone_name = "runs-on.dev" }
+]
