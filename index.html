@@ -159,6 +159,15 @@
       </div>
     </button>
 
+
+    <button class="nav-item ai-nav" data-page="ai">
+      <span>✦</span>
+      <div>
+        <b>AI Assistant</b>
+        <small>Maxiel AI • Worker</small>
+      </div>
+    </button>
+
     <button class="nav-item" data-page="settings">
       <span>⚙</span>
       <div>
@@ -463,6 +472,56 @@
   </div>
 
 </section>
+
+<!-- ================= AI ASSISTANT ================= -->
+
+<section class="page" id="ai">
+  <div class="page-header ai-page-header">
+    <div>
+      <small>MAXIEL AI ASSISTANT</small>
+      <h1>AI Chat <span data-web-name>Maxiel</span></h1>
+      <p>Chat AI diproses melalui Worker agar endpoint AI tidak ditaruh langsung di halaman website.</p>
+    </div>
+    <span class="ai-status-pill" id="aiStatusPill">WORKER</span>
+  </div>
+
+  <div class="ai-layout">
+    <div class="ai-chat-card">
+      <div class="ai-chat-head">
+        <div class="ai-avatar"><img src="developer.jpg" alt="AI"></div>
+        <div>
+          <strong data-web-name>Maxiel AI</strong>
+          <small>Public AI via Worker</small>
+        </div>
+        <button type="button" id="aiClear" class="ai-head-btn">Bersihkan</button>
+      </div>
+      <div class="ai-messages" id="aiMessages">
+        <div class="ai-message ai-bot">
+          <div class="ai-message-label">MAXIEL AI</div>
+          <div>Halo! Saya siap membantu. Kirim pertanyaanmu untuk mulai chat.</div>
+        </div>
+      </div>
+      <div class="ai-typing" id="aiTyping"><span></span><span></span><span></span><em>AI sedang mengetik...</em></div>
+      <form class="ai-input-area" id="aiForm">
+        <textarea id="aiInput" rows="1" maxlength="4000" placeholder="Tulis pertanyaan untuk AI..." autocomplete="off"></textarea>
+        <button type="submit" id="aiSend">KIRIM <span>➤</span></button>
+      </form>
+      <div class="ai-input-note">Enter untuk kirim • Shift + Enter untuk baris baru</div>
+    </div>
+
+    <aside class="ai-info-card">
+      <div class="ai-info-icon">✦</div>
+      <small>AI ENGINE</small>
+      <h3>Worker Protected</h3>
+      <p>Website memanggil Cloudflare Worker. Worker yang meneruskan pertanyaan ke Public AI dan mengembalikan jawaban ke website.</p>
+      <div class="ai-flow">
+        <span>Website</span><b>→</b><span>Worker</span><b>→</b><span>Public AI</span>
+      </div>
+      <button type="button" class="ai-settings-link" data-open="settings">⚙ Atur Worker</button>
+    </aside>
+  </div>
+</section>
+
 <!-- ================= SETTINGS ================= -->
 
 <section class="page" id="settings">
@@ -595,6 +654,27 @@
         <button type="button" id="installAppButton" class="install-app-button">▣ PASANG APLIKASI</button>
       </div>
       <p class="live-color-note">Nama dan foto ikon tersimpan di perangkat ini. Favicon, judul website, preview dan metadata aplikasi akan mengikuti pengaturanmu.</p>
+    </div>
+
+
+    <div class="settings-card ai-worker-settings-card">
+      <div class="settings-card-head">
+        <div>
+          <small>AI ENGINE</small>
+          <h3>AI Worker</h3>
+        </div>
+        <span class="settings-badge" id="aiWorkerStatus">BELUM DIATUR</span>
+      </div>
+      <p class="ai-worker-desc">Masukkan URL Cloudflare Worker yang sudah kamu deploy. Website akan mengirim pertanyaan AI ke Worker, bukan langsung ke Public AI.</p>
+      <label class="app-field">
+        <span>URL Worker</span>
+        <input id="aiWorkerUrl" type="url" placeholder="https://nama-worker.username.workers.dev">
+      </label>
+      <div class="ai-worker-actions">
+        <button type="button" id="saveAiWorker" class="settings-save-app">SIMPAN WORKER</button>
+        <button type="button" id="testAiWorker" class="settings-reset">TES KONEKSI</button>
+      </div>
+      <p class="live-color-note" id="aiWorkerHint">Worker harus memiliki endpoint <b>/ai?query=...</b> dan CORS aktif.</p>
     </div>
 
     <div class="settings-card settings-reset-card">
