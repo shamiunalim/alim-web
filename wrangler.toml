@@ -1,0 +1,9 @@
+name = "maxiel-ai-proxy"
+main = "index.js"
+compatibility_date = "2026-09-20"
+
+# Agar app.js cukup memakai /api/ai tanpa URL Worker.
+# Domain harus dikelola/proxy oleh Cloudflare untuk memakai route ini.
+routes = [
+  { pattern = "naxiel.runs-on.dev/api/*", zone_name = "runs-on.dev" }
+]
