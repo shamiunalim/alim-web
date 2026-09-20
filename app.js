@@ -2637,3 +2637,214 @@ if ("serviceWorker" in navigator) {
       })
   })
 }
+
+// ================= MAXIEL AI / WORKER =================
+const aiWorkerKey = "maxiel_ai_worker_url"
+const aiForm = document.getElementById("aiForm")
+const aiInput = document.getElementById("aiInput")
+const aiSend = document.getElementById("aiSend")
+const aiMessages = document.getElementById("aiMessages")
+const aiTyping = document.getElementById("aiTyping")
+const aiClear = document.getElementById("aiClear")
+const aiStatusPill = document.getElementById("aiStatusPill")
+const aiWorkerUrl = document.getElementById("aiWorkerUrl")
+const saveAiWorker = document.getElementById("saveAiWorker")
+const testAiWorker = document.getElementById("testAiWorker")
+const aiWorkerStatus = document.getElementById("aiWorkerStatus")
+
+function normalizeAiWorkerUrl(value){
+  return String(value || "").trim().replace(/\/$/, "").replace(/\/ai$/, "")
+}
+
+function getAiWorkerUrl(){
+  return normalizeAiWorkerUrl(localStorage.getItem(aiWorkerKey) || "")
+}
+
+function setAiWorkerStatus(connected=false){
+  const url = getAiWorkerUrl()
+  const configured = Boolean(url)
+
+  if(aiWorkerUrl) aiWorkerUrl.value = url
+
+  if(aiWorkerStatus){
+    aiWorkerStatus.textContent = connected ? "TERHUBUNG" : configured ? "SIAP DITES" : "BELUM DIATUR"
+  }
+
+  if(aiStatusPill){
+    aiStatusPill.textContent = connected ? "WORKER ONLINE" : configured ? "WORKER SIAP" : "WORKER BELUM DIATUR"
+  }
+}
+
+function addAiMessage(text,type="bot"){
+  const message = document.createElement("div")
+  message.className = `ai-message ai-${type}`
+
+  const label = document.createElement("div")
+  label.className = "ai-message-label"
+  label.textContent = type === "user" ? "KAMU" : "MAXIEL AI"
+
+  const content = document.createElement("div")
+  content.textContent = text
+
+  message.append(label,content)
+  aiMessages?.appendChild(message)
+  aiMessages?.scrollTo({
+    top: aiMessages.scrollHeight,
+    behavior: "smooth"
+  })
+}
+
+function setAiTyping(show){
+  aiTyping?.classList.toggle("show",show)
+  if(show && aiMessages){
+    aiMessages.scrollTo({
+      top: aiMessages.scrollHeight,
+      behavior: "smooth"
+    })
+  }
+}
+
+async function createAIRequest(query){
+  const worker = getAiWorkerUrl()
+
+  if(!worker){
+    throw new Error("URL AI Worker belum diatur. Buka Pengaturan → AI Worker.")
+  }
+
+  const response = await fetch(
+    `${worker}/ai?query=${encodeURIComponent(query)}`,
+    {
+      method:"GET",
+      headers:{"Accept":"application/json"},
+      cache:"no-store"
+    }
+  )
+
+  let result
+  try{
+    result = await response.json()
+  }catch{
+    throw new Error("Worker mengembalikan data yang tidak valid.")
+  }
+
+  if(!response.ok || result?.status !== 200){
+    throw new Error(result?.error || `Worker HTTP ${response.status}`)
+  }
+
+  const answer = result?.data?.response
+
+  if(!answer){
+    throw new Error("Worker tidak memberikan jawaban AI.")
+  }
+
+  return answer
+}
+
+async function submitAiMessage(){
+  const query = aiInput?.value.trim()
+  if(!query || aiSend?.disabled) return
+
+  addAiMessage(query,"user")
+  aiInput.value = ""
+  aiInput.style.height = "auto"
+  aiSend.disabled = true
+  setAiTyping(true)
+
+  try{
+    const answer = await createAIRequest(query)
+    setAiTyping(false)
+    addAiMessage(answer,"bot")
+    setAiWorkerStatus(true)
+  }catch(error){
+    setAiTyping(false)
+    addAiMessage(`Gagal menghubungi AI Worker.\n\n${error?.message || "Terjadi kesalahan."}`,"bot")
+    setAiWorkerStatus(false)
+  }finally{
+    aiSend.disabled = false
+    aiInput?.focus()
+  }
+}
+
+aiForm?.addEventListener("submit",event => {
+  event.preventDefault()
+  submitAiMessage()
+})
+
+aiInput?.addEventListener("keydown",event => {
+  if(event.key === "Enter" && !event.shiftKey){
+    event.preventDefault()
+    submitAiMessage()
+  }
+})
+
+aiInput?.addEventListener("input",() => {
+  aiInput.style.height = "auto"
+  aiInput.style.height = `${Math.min(aiInput.scrollHeight,140)}px`
+})
+
+aiClear?.addEventListener("click",() => {
+  if(!aiMessages) return
+  aiMessages.innerHTML = ""
+  addAiMessage("Chat sudah dibersihkan. Silakan kirim pertanyaan baru.","bot")
+})
+
+saveAiWorker?.addEventListener("click",() => {
+  const url = normalizeAiWorkerUrl(aiWorkerUrl?.value)
+
+  if(!url){
+    localStorage.removeItem(aiWorkerKey)
+    setAiWorkerStatus(false)
+    toast("URL AI Worker dikosongkan.")
+    return
+  }
+
+  try{
+    const parsed = new URL(url)
+    if(parsed.protocol !== "https:") throw new Error()
+  }catch{
+    toast("URL Worker harus berupa HTTPS yang valid.")
+    return
+  }
+
+  localStorage.setItem(aiWorkerKey,url)
+  setAiWorkerStatus(false)
+  toast("URL AI Worker berhasil disimpan.")
+})
+
+testAiWorker?.addEventListener("click",async() => {
+  const url = normalizeAiWorkerUrl(aiWorkerUrl?.value || getAiWorkerUrl())
+
+  if(!url){
+    toast("Masukkan URL AI Worker terlebih dahulu.")
+    return
+  }
+
+  localStorage.setItem(aiWorkerKey,url)
+  testAiWorker.disabled = true
+  testAiWorker.textContent = "MENGUJI..."
+
+  try{
+    const response = await fetch(`${url}/ai?query=${encodeURIComponent("ping")}`,{
+      method:"GET",
+      headers:{"Accept":"application/json"},
+      cache:"no-store"
+    })
+
+    const result = await response.json()
+
+    if(!response.ok || result?.status !== 200){
+      throw new Error(result?.error || `HTTP ${response.status}`)
+    }
+
+    setAiWorkerStatus(true)
+    toast("AI Worker terhubung dan Public AI merespons.")
+  }catch(error){
+    setAiWorkerStatus(false)
+    toast(`Tes Worker gagal: ${error?.message || "koneksi gagal"}`)
+  }finally{
+    testAiWorker.disabled = false
+    testAiWorker.textContent = "TES KONEKSI"
+  }
+})
+
+setAiWorkerStatus(false)
