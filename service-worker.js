@@ -1,4 +1,4 @@
-const CACHE_NAME = "maxiel-ai-v2"
+const CACHE_NAME = "maxiel-ai-v3"
 const AI_API = "https://api.fromscratch.web.id/v1/api/ai/publicai"
 
 const APP_FILES = [
@@ -56,7 +56,8 @@ self.addEventListener("fetch",event=>{
   const url = new URL(request.url)
 
   // AI proxy internal: website cukup memanggil /ai?query=...
-  if(request.method === "GET" && url.pathname === "/ai"){
+  const aiPath = new URL("./ai", self.registration.scope).pathname.replace(/\/$/,"")
+  if(request.method === "GET" && url.pathname.replace(/\/$/,"") === aiPath){
     event.respondWith((async()=>{
       const query = (url.searchParams.get("query") || "").trim()
 
