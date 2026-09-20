@@ -2277,7 +2277,7 @@ function addAIMessage(text,type){
 }
 
 async function askMaxielAI(query){
-  const url=`https://api.fromscratch.web.id/v1/api/ai/publicai?query=${encodeURIComponent(query)}`
+  const url=`/api/ai?query=${encodeURIComponent(query)}`
 
   try{
     const response=await fetch(url,{
