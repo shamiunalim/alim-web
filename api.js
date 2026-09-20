@@ -19,7 +19,3 @@ export const API = {
 }
 
 export const TIKTOK_API = "https://www.tikwm.com/api/"
-
-export function aiWorkerUrl(query){
-  return `/ai?query=${encodeURIComponent(query)}`
-}
