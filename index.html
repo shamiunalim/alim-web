@@ -4,14 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta name="theme-color" content="#020817">
-<meta name="description" content="Maxiel Web - Downloader, Converter & Tools" id="siteDescription">
-<meta name="application-name" content="Maxiel" id="applicationNameMeta">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Maxiel</title>
-<link rel="icon" id="favicon" href="icon-192.png">
-<link rel="apple-touch-icon" id="appleIcon" href="icon-192.png">
-<link rel="manifest" id="appManifest" href="manifest.json">
+<meta name="description" content="Maxiel Nuoye ོ - Downloader, Converter & Tools">
+<title>Maxiel Nuoye ོ</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -86,9 +80,9 @@
   <button class="menu-btn" id="menuBtn">☰</button>
 
   <div class="brand">
-    <div class="brand-mark"><img class="brand-logo-image" src="developer.jpg" alt="Developer"></div>
+    <div class="brand-mark">M</div>
     <div class="brand-text">
-      <strong data-web-name>MAXIEL</strong>
+      <strong>MAXIEL</strong>
       <small>Web Dashboard</small>
     </div>
   </div>
@@ -102,7 +96,7 @@
 <aside class="sidebar" id="sidebar">
 
   <div class="side-brand">
-    <div class="side-logo"><img src="developer.jpg" alt="Developer"></div>
+    <div class="side-logo">M</div>
     <div>
       <strong>Maxiel Nuoye ོ</strong>
       <small>Personal Web</small>
@@ -159,12 +153,11 @@
       </div>
     </button>
 
-
     <button class="nav-item ai-nav" data-page="ai">
       <span>✦</span>
       <div>
-        <b>AI Assistant</b>
-        <small>Maxiel AI • Worker</small>
+        <b>Maxiel AI</b>
+        <small>Chat AI Assistant</small>
       </div>
     </button>
 
@@ -192,15 +185,15 @@
 <section class="page active" id="dashboard">
 
   <div class="dashboard-heading">
-    <div><span data-web-name>MAXIEL</span><b>/</b><strong>Dashboard</strong></div>
+    <div><span>MAXIEL</span><b>/</b><strong>Dashboard</strong></div>
     <time id="dashboardTime">00.00.00</time>
   </div>
 
   <div class="hero dashboard-hero">
     <div class="hero-title">
-      <small><span data-web-name>MAXIEL</span> WEB</small>
+      <small>MAXIEL WEB</small>
       <h1>Halo, Pengguna 👋</h1>
-      <p>Selamat datang di <span data-web-full>Maxiel Web</span> Dashboard. Pantau waktu, runtime dan informasi perangkat langsung dari browser.</p>
+      <p>Selamat datang di Maxiel Web Dashboard. Pantau waktu, runtime dan informasi perangkat langsung dari browser.</p>
     </div>
     <div class="hero-actions">
       <button type="button" onclick="document.getElementById('clockCard').scrollIntoView({behavior:'smooth',block:'center'})">◷ <span>Lihat Runtime</span></button>
@@ -299,7 +292,7 @@
     <h1>Cara Menggunakan Website</h1>
     <p>
       Ikuti video dari awal sampai selesai untuk mengetahui
-      cara menggunakan seluruh fitur <span data-web-full>Maxiel Web</span>.
+      cara menggunakan seluruh fitur Maxiel Web.
     </p>
   </div>
 
@@ -472,41 +465,30 @@
   </div>
 
 </section>
-
-<!-- ================= AI ASSISTANT ================= -->
+<!-- ================= AI ================= -->
 <section class="page" id="ai">
-  <div class="ai-wa-shell">
-    <div class="ai-wa-head">
-      <div class="ai-wa-profile">
-        <div class="ai-avatar"><img src="developer.jpg" alt="Maxiel AI"></div>
+  <div class="ai-page">
+    <div class="ai-chat-card">
+      <div class="ai-chat-head">
+        <div class="ai-avatar">M</div>
         <div>
-          <strong><span data-web-name>Maxiel</span> AI</strong>
-          <small><i></i> online • AI Assistant</small>
+          <strong>Maxiel AI</strong>
+          <small><i></i> Online</small>
+        </div>
+        <button type="button" id="clearAIChat" class="ai-clear">Bersihkan</button>
+      </div>
+      <div class="ai-messages" id="aiMessages">
+        <div class="ai-bubble ai-bot">
+          <div>Halo 👋 Saya Maxiel AI. Ada yang bisa saya bantu?</div>
+          <time>sekarang</time>
         </div>
       </div>
-      <div class="ai-wa-actions">
-        <button type="button" id="aiClear" title="Bersihkan chat">⌫</button>
-      </div>
+      <div class="ai-typing" id="aiTyping"><span></span><span></span><span></span> Maxiel AI sedang mengetik...</div>
+      <form class="ai-input-area" id="aiForm">
+        <textarea id="aiInput" rows="1" maxlength="4000" placeholder="Ketik pesan..."></textarea>
+        <button type="submit" id="aiSend" aria-label="Kirim">➤</button>
+      </form>
     </div>
-    <div class="ai-chat-wallpaper" id="aiMessages">
-      <div class="ai-date-chip">HARI INI</div>
-      <div class="ai-message ai-bot">
-        <div class="ai-bubble">
-          Halo 👋<br>
-          Saya <b><span data-web-name>Maxiel</span> AI</b>. Ada yang bisa saya bantu?
-          <span class="ai-time">12:00 ✓✓</span>
-        </div>
-      </div>
-    </div>
-    <div class="ai-typing" id="aiTyping">
-      <div class="ai-typing-bubble"><span></span><span></span><span></span></div>
-      <em>sedang mengetik...</em>
-    </div>
-    <form class="ai-wa-compose" id="aiForm">
-      <textarea id="aiInput" rows="1" maxlength="4000" placeholder="Ketik pesan..." autocomplete="off"></textarea>
-      <button type="submit" id="aiSend" aria-label="Kirim">➤</button>
-    </form>
-    <div class="ai-wa-note">Pesan diproses melalui Service Worker → Public AI</div>
   </div>
 </section>
 
@@ -517,7 +499,7 @@
   <div class="page-header settings-heading">
     <div>
       <small>PENGATURAN</small>
-      <h2>Tampilan <span data-web-name>Maxiel</span></h2>
+      <h2>Tampilan Maxiel</h2>
       <p>Atur background dan warna antarmuka. Pilihan disimpan otomatis di browser.</p>
     </div>
   </div>
@@ -592,90 +574,6 @@
         <button type="button" class="color-preset" data-color="#ff8a00" style="--preset:#ff8a00" aria-label="Oranye"></button>
       </div>
       <p class="live-color-note">Perubahan warna diterapkan langsung tanpa reload.</p>
-    </div>
-
-    <div class="settings-card app-identity-card">
-      <div class="settings-card-head">
-        <div>
-          <small>IDENTITAS WEBSITE</small>
-          <h3>Nama & Ikon Aplikasi</h3>
-        </div>
-        <span class="settings-badge" id="appIdentityStatus">MAXIEL</span>
-      </div>
-      <div class="app-identity-preview">
-        <div class="app-icon-preview-large">
-          <img id="appIconPreview" src="icon-192.png" alt="Preview ikon aplikasi">
-        </div>
-        <div class="app-identity-preview-text">
-          <small>PREVIEW</small>
-          <strong id="appNamePreview">Maxiel</strong>
-          <span id="appInstallPreview">Siap dipasang sebagai aplikasi</span>
-        </div>
-      </div>
-      <div class="app-identity-form">
-        <label class="app-field">
-          <span>Nama website / aplikasi</span>
-          <input id="appNameInput" type="text" maxlength="40" value="Maxiel" placeholder="Contoh: Maxiel Web">
-        </label>
-        <label class="app-upload">
-          <span class="app-upload-icon">📷</span>
-          <div>
-            <b>Ganti Foto Ikon</b>
-            <small>PNG, JPG atau WEBP • foto akan menjadi ikon</small>
-          </div>
-          <input id="appIconFile" type="file" accept="image/png,image/jpeg,image/webp" hidden>
-        </label>
-        <div class="app-icon-actions">
-          <button type="button" id="saveAppIdentity" class="settings-save-app">SIMPAN NAMA & IKON</button>
-          <button type="button" id="resetAppIdentity" class="settings-reset">Kembalikan Default</button>
-        </div>
-        <label class="app-install-toggle">
-          <div>
-            <b>Izinkan pemasangan aplikasi</b>
-            <small>Jika dimatikan, tombol install tidak ditampilkan.</small>
-          </div>
-          <span class="switch">
-            <input type="checkbox" id="allowAppInstall" checked>
-            <span></span>
-          </span>
-        </label>
-        <button type="button" id="installAppButton" class="install-app-button">▣ PASANG APLIKASI</button>
-      </div>
-      <p class="live-color-note">Nama dan foto ikon tersimpan di perangkat ini. Favicon, judul website, preview dan metadata aplikasi akan mengikuti pengaturanmu.</p>
-    </div>
-
-
-    <div class="settings-card ai-settings-card">
-      <div class="settings-card-head">
-        <div>
-          <small>AI ASSISTANT</small>
-          <h3>Pengaturan Respon AI</h3>
-        </div>
-        <span class="settings-badge" id="aiResponseStatus">TEXT</span>
-      </div>
-      <p class="ai-worker-desc">Atur cara jawaban AI ditampilkan. Tidak perlu memasukkan URL Worker karena website menggunakan Service Worker internal.</p>
-      <div class="ai-response-options">
-        <button type="button" class="ai-response-option active" data-ai-response="text">
-          <span>💬</span>
-          <div><b>Text</b><small>Jawaban ditampilkan sebagai pesan chat.</small></div>
-        </button>
-        <button type="button" class="ai-response-option" data-ai-response="voice">
-          <span>🔊</span>
-          <div><b>Voice</b><small>Jawaban otomatis dibacakan oleh perangkat.</small></div>
-        </button>
-      </div>
-      <label class="app-install-toggle ai-auto-voice-toggle">
-        <div>
-          <b>Suara otomatis</b>
-          <small>Jika Voice dipilih, AI langsung membacakan jawaban.</small>
-        </div>
-        <span class="switch">
-          <input type="checkbox" id="aiAutoVoice" checked>
-          <span></span>
-        </span>
-      </label>
-      <button type="button" id="testAiWorker" class="settings-save-app ai-test-local">TES AI</button>
-      <p class="live-color-note" id="aiWorkerHint">Endpoint internal: <b>/ai?query=...</b> • diproses oleh Service Worker.</p>
     </div>
 
     <div class="settings-card settings-reset-card">
