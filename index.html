@@ -551,6 +551,74 @@
     </div>
   </div>
 
+<div class="settings-card app-icon-settings">
+  <div class="settings-card-head">
+    <div>
+      <small>APLIKASI</small>
+      <h3>Ikon & Nama Aplikasi</h3>
+    </div>
+    <span class="settings-badge" id="appIconStatus">MAXIEL</span>
+  </div>
+
+  <div class="app-icon-preview-box">
+    <div class="app-icon-preview">
+      <img id="appIconPreview" src="icon-192.png" alt="Preview ikon aplikasi">
+    </div>
+
+    <div class="app-icon-info">
+      <strong id="appIconPreviewName">Maxiel Web</strong>
+      <span>Preview ikon aplikasi</span>
+    </div>
+  </div>
+
+  <div class="app-icon-form">
+
+    <label class="app-icon-upload">
+      <span>📷</span>
+      <div>
+        <b>Pilih Foto Ikon</b>
+        <small>PNG, JPG atau WEBP</small>
+      </div>
+      <input
+        id="appIconFile"
+        type="file"
+        accept="image/png,image/jpeg,image/webp"
+        hidden
+      >
+    </label>
+
+    <label class="app-name-input">
+      <span>Nama aplikasi</span>
+      <input
+        id="appNameInput"
+        type="text"
+        maxlength="40"
+        value="Maxiel Web"
+        placeholder="Masukkan nama aplikasi..."
+      >
+    </label>
+
+    <button
+      type="button"
+      id="saveAppIcon"
+      class="settings-save-app">
+      SIMPAN IKON APLIKASI
+    </button>
+
+    <button
+      type="button"
+      id="resetAppIcon"
+      class="settings-reset">
+      Kembalikan Ikon Default
+    </button>
+
+  </div>
+
+  <p class="live-color-note">
+    Ikon dan nama disimpan di perangkat ini dan digunakan saat website dipasang sebagai aplikasi.
+  </p>
+</div>
+
 </section>
 
 <!-- ================= DOWNLOADER ================= -->
