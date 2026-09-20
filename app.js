@@ -2282,155 +2282,358 @@ if (tutorialVideo) {
 }
 
 // =========================================================
-// MAXIEL APP ICON / PWA SETTINGS
+// WEBSITE IDENTITY / PWA / CUSTOM APP ICON
 // =========================================================
+const webIdentityNameKey = "maxiel_web_identity_name"
+const webIdentityIconKey = "maxiel_web_identity_icon"
+const webIdentityInstallKey = "maxiel_web_identity_install"
+const defaultWebIdentityName = "Maxiel"
+const defaultWebIdentityIcon = "icon-192.png"
 
-const appIconFile=document.getElementById("appIconFile")
-const appIconPreview=document.getElementById("appIconPreview")
-const appIconPreviewName=document.getElementById("appIconPreviewName")
-const appNameInput=document.getElementById("appNameInput")
-const saveAppIcon=document.getElementById("saveAppIcon")
-const resetAppIcon=document.getElementById("resetAppIcon")
-const appIconStatus=document.getElementById("appIconStatus")
+const appNameInput = document.getElementById("appNameInput")
+const appIconFile = document.getElementById("appIconFile")
+const appIconPreview = document.getElementById("appIconPreview")
+const appNamePreview = document.getElementById("appNamePreview")
+const appIdentityStatus = document.getElementById("appIdentityStatus")
+const appInstallPreview = document.getElementById("appInstallPreview")
+const saveAppIdentity = document.getElementById("saveAppIdentity")
+const resetAppIdentity = document.getElementById("resetAppIdentity")
+const allowAppInstall = document.getElementById("allowAppInstall")
+const installAppButton = document.getElementById("installAppButton")
+const favicon = document.getElementById("favicon")
+const appleIcon = document.getElementById("appleIcon")
+const appManifest = document.getElementById("appManifest")
+const applicationNameMeta = document.getElementById("applicationNameMeta")
+const siteDescription = document.getElementById("siteDescription")
 
-const appIconKey="maxiel_app_icon"
-const appNameKey="maxiel_app_name"
+let deferredInstallPrompt = null
 
-let selectedAppIcon=null
+function cleanWebIdentityName(value) {
+  const name = String(value || "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 40)
 
-function updateAppIconPreview(image){
-  if(!appIconPreview||!image)return
-  appIconPreview.src=image
+  return name || defaultWebIdentityName
 }
 
-function updateAppNamePreview(name){
-  const value=(name||"Maxiel Web").trim()||"Maxiel Web"
-
-  if(appIconPreviewName){
-    appIconPreviewName.textContent=value
-  }
-
-  if(appIconStatus){
-    appIconStatus.textContent=value.slice(0,12).toUpperCase()
-  }
-
-  document.title=value
+function getWebIdentityName() {
+  return cleanWebIdentityName(
+    localStorage.getItem(webIdentityNameKey) ||
+    defaultWebIdentityName
+  )
 }
 
-appIconFile?.addEventListener("change",event=>{
-  const file=event.target.files?.[0]
-  if(!file)return
+function getWebIdentityIcon() {
+  return localStorage.getItem(webIdentityIconKey) || defaultWebIdentityIcon
+}
 
-  if(!file.type.startsWith("image/")){
-    toast("File harus berupa gambar.")
+function applyWebIdentityText(name) {
+  const safeName = cleanWebIdentityName(name)
+  const upperName = safeName.toUpperCase()
+
+  document.querySelectorAll("[data-web-name]").forEach(el => {
+    el.textContent = safeName
+  })
+
+  document.querySelectorAll("[data-web-full]").forEach(el => {
+    el.textContent = `${safeName} Web`
+  })
+
+  document.title = safeName
+
+  if (applicationNameMeta) {
+    applicationNameMeta.content = safeName
+  }
+
+  if (siteDescription) {
+    siteDescription.content =
+      `${safeName} Web - Downloader, Converter & Tools`
+  }
+
+  // Semua label brand yang memang ditulis sebagai MAXIEL ikut berubah.
+  const walker = document.createTreeWalker(
+    document.body,
+    NodeFilter.SHOW_TEXT
+  )
+
+  const nodes = []
+  while (walker.nextNode()) {
+    nodes.push(walker.currentNode)
+  }
+
+  nodes.forEach(node => {
+    const parent = node.parentElement
+    if (!parent) return
+    if (
+      parent.closest("script,style,input,textarea,select") ||
+      parent.hasAttribute("data-brand-ignore")
+    ) {
+      return
+    }
+
+    if (node.nodeValue.includes("MAXIEL")) {
+      node.nodeValue = node.nodeValue.replaceAll("MAXIEL", upperName)
+    }
+  })
+}
+
+function applyWebIdentityIcon(icon) {
+  const safeIcon = icon || defaultWebIdentityIcon
+
+  if (favicon) favicon.href = safeIcon
+  if (appleIcon) appleIcon.href = safeIcon
+
+  if (appIconPreview) {
+    appIconPreview.src = safeIcon
+  }
+}
+
+async function buildDynamicManifest(name, icon) {
+  if (!appManifest) return
+
+  const manifest = {
+    name,
+    short_name: name.slice(0, 20),
+    description: `${name} Web - Downloader, Converter & Tools`,
+    start_url: "./",
+    scope: "./",
+    display: "standalone",
+    orientation: "portrait-primary",
+    background_color: "#020817",
+    theme_color: "#020817",
+    icons: [
+      {
+        src: icon,
+        sizes: "192x192",
+        type: "image/png",
+        purpose: "any maskable"
+      },
+      {
+        src: icon,
+        sizes: "512x512",
+        type: "image/png",
+        purpose: "any maskable"
+      }
+    ]
+  }
+
+  try {
+    const blob = new Blob(
+      [JSON.stringify(manifest)],
+      {type:"application/manifest+json"}
+    )
+
+    if (window.__maxielManifestUrl) {
+      URL.revokeObjectURL(window.__maxielManifestUrl)
+    }
+
+    window.__maxielManifestUrl = URL.createObjectURL(blob)
+    appManifest.href = window.__maxielManifestUrl
+  } catch (error) {
+    console.warn("Manifest dinamis tidak tersedia:", error)
+  }
+}
+
+function updateAppIdentityUI() {
+  const name = getWebIdentityName()
+  const icon = getWebIdentityIcon()
+  const allowed =
+    localStorage.getItem(webIdentityInstallKey) !== "false"
+
+  applyWebIdentityText(name)
+  applyWebIdentityIcon(icon)
+
+  if (appNameInput) appNameInput.value = name
+  if (appNamePreview) appNamePreview.textContent = name
+  if (appIdentityStatus) appIdentityStatus.textContent = name.toUpperCase().slice(0, 18)
+  if (allowAppInstall) allowAppInstall.checked = allowed
+
+  if (appInstallPreview) {
+    appInstallPreview.textContent =
+      allowed
+        ? "Siap dipasang sebagai aplikasi"
+        : "Pemasangan aplikasi dinonaktifkan"
+  }
+
+  if (installAppButton) {
+    installAppButton.hidden =
+      !allowed || !deferredInstallPrompt
+  }
+
+  buildDynamicManifest(name, icon)
+}
+
+function readSelectedIcon(file) {
+  return new Promise((resolve, reject) => {
+    if (!file) {
+      resolve(null)
+      return
+    }
+
+    if (!/^image\/(png|jpeg|webp)$/.test(file.type)) {
+      reject(new Error("Format foto harus PNG, JPG atau WEBP."))
+      return
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      reject(new Error("Ukuran foto ikon maksimal 5 MB."))
+      return
+    }
+
+    const reader = new FileReader()
+
+    reader.onload = () => resolve(reader.result)
+    reader.onerror = () => reject(new Error("Foto ikon gagal dibaca."))
+
+    reader.readAsDataURL(file)
+  })
+}
+
+appIconFile?.addEventListener("change", async () => {
+  const file = appIconFile.files?.[0]
+  if (!file) return
+
+  try {
+    const data = await readSelectedIcon(file)
+    if (data && appIconPreview) {
+      appIconPreview.src = data
+      appInstallPreview.textContent = "Foto ikon siap disimpan"
+    }
+  } catch (error) {
+    appIconFile.value = ""
+    toast(error.message)
+  }
+})
+
+saveAppIdentity?.addEventListener("click", async () => {
+  const name = cleanWebIdentityName(appNameInput?.value)
+  let icon = getWebIdentityIcon()
+
+  try {
+    const file = appIconFile?.files?.[0]
+    if (file) {
+      icon = await readSelectedIcon(file)
+    }
+  } catch (error) {
+    toast(error.message)
     return
   }
 
-  const reader=new FileReader()
+  localStorage.setItem(webIdentityNameKey, name)
+  localStorage.setItem(webIdentityIconKey, icon)
+  localStorage.setItem(
+    webIdentityInstallKey,
+    allowAppInstall?.checked === false ? "false" : "true"
+  )
 
-  reader.onload=()=>{
-    selectedAppIcon=reader.result
-    updateAppIconPreview(selectedAppIcon)
-    toast("Foto ikon siap digunakan.")
-  }
+  updateWebIdentityManifestAndUI(name, icon)
+  toast(`Identitas ${name} berhasil disimpan.`)
 
-  reader.readAsDataURL(file)
+  if (appIconFile) appIconFile.value = ""
 })
 
-appNameInput?.addEventListener("input",()=>{
-  updateAppNamePreview(appNameInput.value)
+function updateWebIdentityManifestAndUI(name, icon) {
+  const safeName = cleanWebIdentityName(name)
+  applyWebIdentityText(safeName)
+  applyWebIdentityIcon(icon)
+
+  if (appNameInput) appNameInput.value = safeName
+  if (appNamePreview) appNamePreview.textContent = safeName
+  if (appIdentityStatus) {
+    appIdentityStatus.textContent = safeName.toUpperCase().slice(0, 18)
+  }
+
+  const allowed =
+    localStorage.getItem(webIdentityInstallKey) !== "false"
+
+  if (appInstallPreview) {
+    appInstallPreview.textContent =
+      allowed
+        ? "Siap dipasang sebagai aplikasi"
+        : "Pemasangan aplikasi dinonaktifkan"
+  }
+
+  if (installAppButton) {
+    installAppButton.hidden =
+      !allowed || !deferredInstallPrompt
+  }
+
+  buildDynamicManifest(safeName, icon)
+}
+
+allowAppInstall?.addEventListener("change", () => {
+  localStorage.setItem(
+    webIdentityInstallKey,
+    allowAppInstall.checked ? "true" : "false"
+  )
+
+  updateWebIdentityManifestAndUI(
+    getWebIdentityName(),
+    getWebIdentityIcon()
+  )
 })
 
-function updateFavicon(icon){
-  let favicon=document.querySelector('link[data-maxiel-favicon]')
+resetAppIdentity?.addEventListener("click", () => {
+  localStorage.removeItem(webIdentityNameKey)
+  localStorage.removeItem(webIdentityIconKey)
+  localStorage.removeItem(webIdentityInstallKey)
 
-  if(!favicon){
-    favicon=document.createElement("link")
-    favicon.rel="icon"
-    favicon.type="image/png"
-    favicon.dataset.maxielFavicon="true"
-    document.head.appendChild(favicon)
-  }
+  if (appNameInput) appNameInput.value = defaultWebIdentityName
+  if (appIconFile) appIconFile.value = ""
 
-  favicon.href=icon
-}
+  applyWebIdentityIcon(defaultWebIdentityIcon)
+  updateWebIdentityManifestAndUI(
+    defaultWebIdentityName,
+    defaultWebIdentityIcon
+  )
 
-function updateAppleIcon(icon){
-  let apple=document.querySelector('link[data-maxiel-apple-icon]')
-
-  if(!apple){
-    apple=document.createElement("link")
-    apple.rel="apple-touch-icon"
-    apple.dataset.maxielAppleIcon="true"
-    document.head.appendChild(apple)
-  }
-
-  apple.href=icon
-}
-
-function saveAppSettings(){
-  const name=(appNameInput?.value||"Maxiel Web").trim()||"Maxiel Web"
-  const icon=selectedAppIcon||localStorage.getItem(appIconKey)||"icon-192.png"
-
-  try{
-    localStorage.setItem(appNameKey,name)
-    localStorage.setItem(appIconKey,icon)
-
-    updateAppNamePreview(name)
-    updateAppIconPreview(icon)
-    updateFavicon(icon)
-    updateAppleIcon(icon)
-
-    toast("Ikon dan nama aplikasi berhasil disimpan.")
-  }catch(error){
-    console.error(error)
-    toast("Gagal menyimpan ikon. Foto mungkin terlalu besar.")
-  }
-}
-
-saveAppIcon?.addEventListener("click",saveAppSettings)
-
-resetAppIcon?.addEventListener("click",()=>{
-  localStorage.removeItem(appIconKey)
-  localStorage.removeItem(appNameKey)
-
-  selectedAppIcon=null
-
-  if(appNameInput){
-    appNameInput.value="Maxiel Web"
-  }
-
-  updateAppNamePreview("Maxiel Web")
-  updateAppIconPreview("icon-192.png")
-  updateFavicon("icon-192.png")
-  updateAppleIcon("icon-192.png")
-
-  if(appIconFile){
-    appIconFile.value=""
-  }
-
-  toast("Ikon aplikasi dikembalikan ke default.")
+  toast("Nama dan ikon kembali ke default.")
 })
 
-try{
-  const savedAppName=localStorage.getItem(appNameKey)
-  const savedAppIcon=localStorage.getItem(appIconKey)
+window.addEventListener("beforeinstallprompt", event => {
+  event.preventDefault()
+  deferredInstallPrompt = event
 
-  if(savedAppName){
-    if(appNameInput){
-      appNameInput.value=savedAppName
-    }
-    updateAppNamePreview(savedAppName)
-  }else{
-    updateAppNamePreview("Maxiel Web")
+  const allowed =
+    localStorage.getItem(webIdentityInstallKey) !== "false"
+
+  if (installAppButton) {
+    installAppButton.hidden = !allowed
+  }
+})
+
+installAppButton?.addEventListener("click", async () => {
+  if (!deferredInstallPrompt) {
+    toast("Browser belum menyediakan tombol pemasangan untuk halaman ini.")
+    return
   }
 
-  if(savedAppIcon){
-    selectedAppIcon=savedAppIcon
-    updateAppIconPreview(savedAppIcon)
-    updateFavicon(savedAppIcon)
-    updateAppleIcon(savedAppIcon)
-  }
-}catch(error){
-  console.error("Gagal memuat pengaturan ikon:",error)
+  deferredInstallPrompt.prompt()
+
+  try {
+    await deferredInstallPrompt.userChoice
+  } catch {}
+
+  deferredInstallPrompt = null
+  installAppButton.hidden = true
+})
+
+window.addEventListener("appinstalled", () => {
+  deferredInstallPrompt = null
+  if (installAppButton) installAppButton.hidden = true
+  toast("Aplikasi berhasil dipasang.")
+})
+
+// Terapkan identitas sebelum pengguna berinteraksi dengan website.
+updateWebIdentityUI()
+
+// SERVICE WORKER / PWA
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./service-worker.js")
+      .catch(error => {
+        console.warn("Service worker belum aktif:", error)
+      })
+  })
 }
