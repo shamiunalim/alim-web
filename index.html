@@ -4,8 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta name="theme-color" content="#020817">
-<meta name="description" content="Maxiel Nuoye ོ - Downloader, Converter & Tools">
-<title>Maxiel Nuoye ོ</title>
+<meta name="description" content="Maxiel Web - Downloader, Converter & Tools" id="siteDescription">
+<meta name="application-name" content="Maxiel" id="applicationNameMeta">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Maxiel</title>
+<link rel="icon" id="favicon" href="icon-192.png">
+<link rel="apple-touch-icon" id="appleIcon" href="icon-192.png">
+<link rel="manifest" id="appManifest" href="manifest.json">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -80,9 +86,9 @@
   <button class="menu-btn" id="menuBtn">☰</button>
 
   <div class="brand">
-    <div class="brand-mark">M</div>
+    <div class="brand-mark"><img class="brand-logo-image" src="developer.jpg" alt="Developer"></div>
     <div class="brand-text">
-      <strong>MAXIEL</strong>
+      <strong data-web-name>MAXIEL</strong>
       <small>Web Dashboard</small>
     </div>
   </div>
@@ -96,7 +102,7 @@
 <aside class="sidebar" id="sidebar">
 
   <div class="side-brand">
-    <div class="side-logo">M</div>
+    <div class="side-logo"><img src="developer.jpg" alt="Developer"></div>
     <div>
       <strong>Maxiel Nuoye ོ</strong>
       <small>Personal Web</small>
@@ -177,15 +183,15 @@
 <section class="page active" id="dashboard">
 
   <div class="dashboard-heading">
-    <div><span>MAXIEL</span><b>/</b><strong>Dashboard</strong></div>
+    <div><span data-web-name>MAXIEL</span><b>/</b><strong>Dashboard</strong></div>
     <time id="dashboardTime">00.00.00</time>
   </div>
 
   <div class="hero dashboard-hero">
     <div class="hero-title">
-      <small>MAXIEL WEB</small>
+      <small><span data-web-name>MAXIEL</span> WEB</small>
       <h1>Halo, Pengguna 👋</h1>
-      <p>Selamat datang di Maxiel Web Dashboard. Pantau waktu, runtime dan informasi perangkat langsung dari browser.</p>
+      <p>Selamat datang di <span data-web-full>Maxiel Web</span> Dashboard. Pantau waktu, runtime dan informasi perangkat langsung dari browser.</p>
     </div>
     <div class="hero-actions">
       <button type="button" onclick="document.getElementById('clockCard').scrollIntoView({behavior:'smooth',block:'center'})">◷ <span>Lihat Runtime</span></button>
@@ -284,7 +290,7 @@
     <h1>Cara Menggunakan Website</h1>
     <p>
       Ikuti video dari awal sampai selesai untuk mengetahui
-      cara menggunakan seluruh fitur Maxiel Web.
+      cara menggunakan seluruh fitur <span data-web-full>Maxiel Web</span>.
     </p>
   </div>
 
@@ -414,7 +420,7 @@
 
       <div>
         <small>VIDEO TUTORIAL</small>
-        <h2>Tutorial penggunaan website</h2>
+        <h2>Maxiel Web Dashboard</h2>
         <p>
           Video berjalan dari menit 0:00 sampai selesai.
           Gunakan kontrol di bawah video untuk mengatur
@@ -429,7 +435,7 @@
   download="Maxiel-Web-Tutorial.mp4"
   target="_blank"
   rel="noopener">
-  📥 <span>Save Video</span>
+  ↓ <span>Save Video</span>
 </a>
 
     </div>
@@ -440,7 +446,7 @@
 
     <div>
       <small>SUDAH SELESAI MENONTON?</small>
-      <h2>Terima kasih sudah menggunakan Maxiel Downloader,kami akan terus update demi kenyamanan anda</h2>
+      <h2>Terima kasih sudah menggunakan Maxiel Web 🤍</h2>
       <p>
         Kalau tutorial ini membantu, kamu bisa mengirim
         pesan langsung kepada developer.
@@ -451,7 +457,7 @@
       href="https://wa.me/6287766443103?text=terima%20kasih%20bang%20gantenggg%20%F0%9F%A4%8D"
       target="_blank"
       rel="noopener">
-      TERIMA KASIH
+      🤍 Terima kasih Bang Gantenggg
     </a>
 
   </div>
@@ -464,7 +470,7 @@
   <div class="page-header settings-heading">
     <div>
       <small>PENGATURAN</small>
-      <h2>Tampilan Maxiel</h2>
+      <h2>Tampilan <span data-web-name>Maxiel</span></h2>
       <p>Atur background dan warna antarmuka. Pilihan disimpan otomatis di browser.</p>
     </div>
   </div>
@@ -541,6 +547,56 @@
       <p class="live-color-note">Perubahan warna diterapkan langsung tanpa reload.</p>
     </div>
 
+    <div class="settings-card app-identity-card">
+      <div class="settings-card-head">
+        <div>
+          <small>IDENTITAS WEBSITE</small>
+          <h3>Nama & Ikon Aplikasi</h3>
+        </div>
+        <span class="settings-badge" id="appIdentityStatus">MAXIEL</span>
+      </div>
+      <div class="app-identity-preview">
+        <div class="app-icon-preview-large">
+          <img id="appIconPreview" src="icon-192.png" alt="Preview ikon aplikasi">
+        </div>
+        <div class="app-identity-preview-text">
+          <small>PREVIEW</small>
+          <strong id="appNamePreview">Maxiel</strong>
+          <span id="appInstallPreview">Siap dipasang sebagai aplikasi</span>
+        </div>
+      </div>
+      <div class="app-identity-form">
+        <label class="app-field">
+          <span>Nama website / aplikasi</span>
+          <input id="appNameInput" type="text" maxlength="40" value="Maxiel" placeholder="Contoh: Maxiel Web">
+        </label>
+        <label class="app-upload">
+          <span class="app-upload-icon">📷</span>
+          <div>
+            <b>Ganti Foto Ikon</b>
+            <small>PNG, JPG atau WEBP • foto akan menjadi ikon</small>
+          </div>
+          <input id="appIconFile" type="file" accept="image/png,image/jpeg,image/webp" hidden>
+        </label>
+        <div class="app-icon-actions">
+          <button type="button" id="saveAppIdentity" class="settings-save-app">SIMPAN NAMA & IKON</button>
+          <button type="button" id="resetAppIdentity" class="settings-reset">Kembalikan Default</button>
+        </div>
+        <label class="app-install-toggle">
+          <div>
+            <b>Izinkan pemasangan aplikasi</b>
+            <small>Jika dimatikan, tombol install tidak ditampilkan.</small>
+          </div>
+          <span class="switch">
+            <input type="checkbox" id="allowAppInstall" checked>
+            <span></span>
+          </span>
+        </label>
+        <button type="button" id="installAppButton" class="install-app-button">▣ PASANG APLIKASI</button>
+      </div>
+      <p class="live-color-note">Nama dan foto ikon tersimpan di perangkat ini. Favicon, judul website, preview dan metadata aplikasi akan mengikuti pengaturanmu.</p>
+    </div>
+
     <div class="settings-card settings-reset-card">
       <div>
         <small>DEFAULT</small>
@@ -550,74 +606,6 @@
       <button type="button" id="resetSettings" class="settings-reset">Reset Pengaturan</button>
     </div>
   </div>
-
-<div class="settings-card app-icon-settings">
-  <div class="settings-card-head">
-    <div>
-      <small>APLIKASI</small>
-      <h3>Ikon & Nama Aplikasi</h3>
-    </div>
-    <span class="settings-badge" id="appIconStatus">MAXIEL</span>
-  </div>
-
-  <div class="app-icon-preview-box">
-    <div class="app-icon-preview">
-      <img id="appIconPreview" src="icon-192.png" alt="Preview ikon aplikasi">
-    </div>
-
-    <div class="app-icon-info">
-      <strong id="appIconPreviewName">Maxiel Web</strong>
-      <span>Preview ikon aplikasi</span>
-    </div>
-  </div>
-
-  <div class="app-icon-form">
-
-    <label class="app-icon-upload">
-      <span>📷</span>
-      <div>
-        <b>Pilih Foto Ikon</b>
-        <small>PNG, JPG atau WEBP</small>
-      </div>
-      <input
-        id="appIconFile"
-        type="file"
-        accept="image/png,image/jpeg,image/webp"
-        hidden
-      >
-    </label>
-
-    <label class="app-name-input">
-      <span>Nama aplikasi</span>
-      <input
-        id="appNameInput"
-        type="text"
-        maxlength="40"
-        value="Maxiel Web"
-        placeholder="Masukkan nama aplikasi..."
-      >
-    </label>
-
-    <button
-      type="button"
-      id="saveAppIcon"
-      class="settings-save-app">
-      SIMPAN IKON APLIKASI
-    </button>
-
-    <button
-      type="button"
-      id="resetAppIcon"
-      class="settings-reset">
-      Kembalikan Ikon Default
-    </button>
-
-  </div>
-
-  <p class="live-color-note">
-    Ikon dan nama disimpan di perangkat ini dan digunakan saat website dipasang sebagai aplikasi.
-  </p>
-</div>
 
 </section>
 
