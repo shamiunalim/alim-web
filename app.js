@@ -1,4 +1,4 @@
-import { API, TIKTOK_API} from "./api.js"
+import { API, TIKTOK_API } from "./api.js"
 
 const pages = document.querySelectorAll(".page")
 const navItems = document.querySelectorAll(".nav-item")
@@ -98,6 +98,11 @@ function updateClock() {
 
   document.getElementById("clock").textContent = time
   document.getElementById("date").textContent = date
+
+  const dashboardTime = document.getElementById("dashboardTime")
+  if (dashboardTime) {
+    dashboardTime.textContent = time.replaceAll(":", ".")
+  }
 }
 
 updateClock()
@@ -1422,40 +1427,6 @@ if (
   )
 
   // =========================
-  // TOUCH / CLICK PERTAMA
-  // =========================
-
-  function firstInteraction() {
-
-    if (bgMusic.paused) {
-      playMusic()
-    }
-
-    document.removeEventListener(
-      "pointerdown",
-      firstInteraction
-    )
-
-    document.removeEventListener(
-      "touchstart",
-      firstInteraction
-    )
-
-  }
-
-  document.addEventListener(
-    "pointerdown",
-    firstInteraction,
-    {passive:true}
-  )
-
-  document.addEventListener(
-    "touchstart",
-    firstInteraction,
-    {passive:true}
-  )
-
-  // =========================
   // MULAI
   // =========================
 
@@ -1465,210 +1436,926 @@ if (
 }
 
 // =========================
-// MAXIEL AI
+// LAPOR DEVELOPER / PESAN
 // =========================
 
-const aiInput = document.getElementById("aiInput")
-const aiSend = document.getElementById("aiSend")
-const aiChat = document.getElementById("aiChat")
+const reportModal = document.getElementById("reportModal")
+const reportTitle = document.getElementById("reportTitle")
+const reportHint = document.getElementById("reportHint")
+const reportText = document.getElementById("reportText")
+const reportMedia = document.getElementById("reportMedia")
+const reportMediaPreview = document.getElementById("reportMediaPreview")
+const reportSend = document.getElementById("reportSend")
 
-function addAIMessage(text, type = "bot") {
+const REPORT_WHATSAPP = "6287766443103"
 
-  const div = document.createElement("div")
-  div.className = `ai-message ${type}`
+let reportType = "developer"
+let reportSelectedFile = null
+let reportPreviewUrl = null
 
-  const bubble = document.createElement("div")
-  bubble.className = "ai-bubble"
+function formatReportSize(bytes) {
+  if (!Number.isFinite(bytes)) return ""
 
-  bubble.textContent = text
-
-  div.appendChild(bubble)
-  aiChat.appendChild(div)
-
-  aiChat.scrollTop = aiChat.scrollHeight
-}
-
-
-async function askMaxielAI(question) {
-
-  const prompt = `
-Kamu adalah Asisten Maxiel.
-
-Nama kamu adalah Maxiel AI, asisten virtual resmi dari website Maxiel Nuoye.
-
-Aturan:
-- Selalu menjawab bahasa Indonesia kecuali diminta bahasa lain.
-- Jangan mengaku sebagai ChatGPT.
-- Jika ditanya siapa kamu, jawab bahwa kamu adalah Asisten Maxiel.
-- Bersikap ramah, santai, cerdas, sopan, dan membantu.
-- Jawaban natural dan mudah dipahami.
-- Jangan terlalu panjang kecuali pengguna meminta penjelasan lengkap.
-- Jika tidak tahu, katakan dengan jujur.
-- Bantu pengguna menggunakan website Maxiel.
-- Jangan mengarang informasi.
-
-Pertanyaan pengguna:
-${question}
-`
-
-  const response = await fetch(
-    API.publicAI(prompt)
-  )
-
-  if (!response.ok) {
-    throw new Error(
-      `API Error ${response.status}`
-    )
+  if (bytes < 1024) {
+    return `${bytes} B`
   }
 
-  const data = await response.json()
-
-  console.log(
-    "MAXIEL AI RESPONSE:",
-    data
-  )
-
-  const answer =
-    data?.data?.response ||
-    data?.data?.answer ||
-    data?.data?.result ||
-    data?.response ||
-    data?.answer ||
-    data?.result
-
-  if (!answer) {
-    throw new Error(
-      "Jawaban AI tidak ditemukan"
-    )
+  if (bytes < 1024 * 1024) {
+    return `${(bytes / 1024).toFixed(1)} KB`
   }
 
-  return answer
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
-async function sendAIMessage() {
 
-  if (!aiInput || !aiSend || !aiChat) return
+function escapeReportHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;")
+}
 
-  const message = aiInput.value.trim()
+function clearReportMedia() {
+  if (reportPreviewUrl) {
+    URL.revokeObjectURL(reportPreviewUrl)
+    reportPreviewUrl = null
+  }
 
-  if (!message) return
+  reportSelectedFile = null
 
-  // tampilkan pesan user
-  addAIMessage(message, "user")
+  if (reportMedia) {
+    reportMedia.value = ""
+  }
 
-  // kosongkan input
-  aiInput.value = ""
+  if (reportMediaPreview) {
+    reportMediaPreview.innerHTML = ""
+    reportMediaPreview.classList.remove("show")
+  }
+}
 
-  // reset tinggi textarea
-  aiInput.style.height = "auto"
+function showReportMedia(file) {
+  if (!file) return
 
-  // loading
-  aiSend.disabled = true
-  aiSend.textContent = "..."
+  if (reportPreviewUrl) {
+    URL.revokeObjectURL(reportPreviewUrl)
+    reportPreviewUrl = null
+  }
 
-  addAIMessage("Sedang berpikir...", "loading")
+  reportSelectedFile = file
+
+  const isImage = file.type.startsWith("image/")
+  const isVideo = file.type.startsWith("video/")
+
+  let preview = ""
+
+  if (isImage || isVideo) {
+    reportPreviewUrl = URL.createObjectURL(file)
+
+    preview = isImage
+      ? `<img class="report-media-thumb" src="${reportPreviewUrl}" alt="Media laporan">`
+      : `<video class="report-media-thumb" src="${reportPreviewUrl}" muted></video>`
+  } else {
+    preview = `<div class="report-media-thumb" style="display:grid;place-items:center;font-size:24px">📎</div>`
+  }
+
+  reportMediaPreview.innerHTML = `
+    ${preview}
+    <div class="report-media-info">
+      <strong>${escapeReportHtml(file.name)}</strong>
+      <small>${escapeReportHtml(file.type || "file")} • ${formatReportSize(file.size)}</small>
+    </div>
+    <button class="report-media-remove" type="button" id="removeReportMedia" aria-label="Hapus media">×</button>
+  `
+
+  reportMediaPreview.classList.add("show")
+
+  document
+    .getElementById("removeReportMedia")
+    ?.addEventListener("click", clearReportMedia)
+}
+
+function openReportModal(type = "developer") {
+  reportType = type
+
+  const isMessage = type === "message"
+
+  reportTitle.textContent =
+    isMessage ? "Lapor Pesan" : "Lapor Developer"
+
+  reportHint.textContent =
+    isMessage
+      ? "Tulis pesan atau laporan yang ingin disampaikan kepada developer."
+      : "Tulis laporan atau masukan untuk developer."
+
+  reportText.placeholder =
+    isMessage
+      ? "Tulis laporan pesan..."
+      : "Tulis laporan..."
+
+  reportText.value = ""
+  clearReportMedia()
+
+  reportModal.classList.add("open")
+  reportModal.setAttribute("aria-hidden", "false")
+
+  setTimeout(() => {
+    reportText.focus()
+  }, 50)
+}
+
+function closeReportModal() {
+  reportModal.classList.remove("open")
+  reportModal.setAttribute("aria-hidden", "true")
+  reportText.value = ""
+  clearReportMedia()
+}
+
+async function sendDeveloperReport() {
+  const text = reportText.value.trim()
+
+  if (!text && !reportSelectedFile) {
+    toast("Tulis laporan atau pilih media terlebih dahulu.")
+    reportText.focus()
+    return
+  }
+
+  const typeLabel =
+    reportType === "message"
+      ? "Lapor Pesan"
+      : "Lapor Developer"
+
+  const reportMessage = [
+    `Halo Maxiel Nuoye ོ, saya ingin mengirim ${typeLabel.toLowerCase()}.`,
+    "",
+    text || "(Tidak ada teks laporan)",
+    reportSelectedFile
+      ? `\nLampiran: ${reportSelectedFile.name}`
+      : ""
+  ].join("\n")
 
   try {
+    reportSend.disabled = true
+    reportSend.textContent = "…"
 
-    const answer =
-      await askMaxielAI(message)
+    /*
+     * wa.me hanya dapat membawa teks melalui ?text=.
+     * Jika browser mendukung Web Share API + file, media
+     * dibagikan bersama teks agar bisa dipilih ke WhatsApp.
+     */
+    if (
+      reportSelectedFile &&
+      navigator.share &&
+      navigator.canShare &&
+      navigator.canShare({
+        files: [reportSelectedFile]
+      })
+    ) {
+      await navigator.share({
+        title: typeLabel,
+        text: reportMessage,
+        files: [reportSelectedFile]
+      })
 
-    // hapus loading
-    const loading =
-      aiChat.querySelector(
-        ".ai-message.loading"
-      )
-
-    if (loading) {
-      loading.remove()
+      closeReportModal()
+      toast("Laporan siap dibagikan.")
+      return
     }
 
-    addAIMessage(
-      answer,
-      "bot"
+    const whatsappUrl =
+      `https://wa.me/${REPORT_WHATSAPP}?text=` +
+      encodeURIComponent(reportMessage)
+
+    window.open(
+      whatsappUrl,
+      "_blank",
+      "noopener,noreferrer"
     )
+
+    closeReportModal()
+
+    if (reportSelectedFile) {
+      toast("WhatsApp dibuka. Lampiran perlu dipilih manual.")
+    } else {
+      toast("Laporan dibuka di WhatsApp.")
+    }
 
   } catch (error) {
+    if (error?.name !== "AbortError") {
+      console.error("Gagal mengirim laporan:", error)
 
-    console.error(
-      "MAXIEL AI ERROR:",
-      error
-    )
+      const whatsappUrl =
+        `https://wa.me/${REPORT_WHATSAPP}?text=` +
+        encodeURIComponent(reportMessage)
 
-    const loading =
-      aiChat.querySelector(
-        ".ai-message.loading"
+      window.open(
+        whatsappUrl,
+        "_blank",
+        "noopener,noreferrer"
       )
 
-    if (loading) {
-      loading.remove()
+      closeReportModal()
+      toast("WhatsApp dibuka untuk laporan.")
     }
-
-    addAIMessage(
-      "Maaf, Maxiel AI sedang mengalami masalah.\n" +
-      error.message,
-      "bot error"
-    )
-
   } finally {
-
-    aiSend.disabled = false
-    aiSend.textContent = "➤"
-
-    aiInput.focus()
+    reportSend.disabled = false
+    reportSend.textContent = "➤"
   }
 }
 
+document
+  .querySelectorAll("[data-report]")
+  .forEach(button => {
+    button.addEventListener("click", () => {
+      openReportModal(button.dataset.report)
+    })
+  })
 
-if (aiSend) {
+document
+  .querySelectorAll("[data-report-close]")
+  .forEach(button => {
+    button.addEventListener("click", closeReportModal)
+  })
 
-  aiSend.addEventListener(
-    "click",
-    sendAIMessage
-  )
+reportMedia?.addEventListener(
+  "change",
+  () => {
+    const file = reportMedia.files?.[0]
 
+    if (file) {
+      showReportMedia(file)
+    }
+  }
+)
+
+reportSend?.addEventListener(
+  "click",
+  sendDeveloperReport
+)
+
+reportText?.addEventListener(
+  "keydown",
+  event => {
+    if (
+      event.key === "Enter" &&
+      !event.shiftKey &&
+      !event.isComposing
+    ) {
+      event.preventDefault()
+      sendDeveloperReport()
+    }
+  }
+)
+
+document.addEventListener(
+  "keydown",
+  event => {
+    if (
+      event.key === "Escape" &&
+      reportModal?.classList.contains("open")
+    ) {
+      closeReportModal()
+    }
+  }
+)
+
+
+// =========================================================
+// MAXIEL SETTINGS / THEME + SPECIFIC COLORS
+// =========================================================
+const maxielThemeKey = "maxiel_theme"
+const maxielColorsKey = "maxiel_dashboard_colors"
+const themeStatus = document.getElementById("themeStatus")
+const colorStatus = document.getElementById("colorStatus")
+const resetSettings = document.getElementById("resetSettings")
+
+const colorInputs = {
+  accent: document.getElementById("accentColor"),
+  background: document.getElementById("dashboardBgColor"),
+  topbar: document.getElementById("topbarColor"),
+  sidebar: document.getElementById("sidebarColor"),
+  card: document.getElementById("cardColor"),
+  text: document.getElementById("textColor")
 }
 
+const defaultDashboardColors = {
+  accent: "#087cff",
+  background: "#020817",
+  topbar: "#010712",
+  sidebar: "#020c1c",
+  card: "#03202e",
+  text: "#f4f7ff"
+}
 
-if (aiInput) {
+function hexToRgba(hex, alpha = .18) {
+  const value = String(hex).replace("#", "")
+  const full = value.length === 3
+    ? value.split("").map(x => x + x).join("")
+    : value
+  const number = Number.parseInt(full, 16)
+  if (!Number.isFinite(number)) return `rgba(8,124,255,${alpha})`
+  const r = (number >> 16) & 255
+  const g = (number >> 8) & 255
+  const b = number & 255
+  return `rgba(${r},${g},${b},${alpha})`
+}
 
-  aiInput.addEventListener(
-    "keydown",
-    e => {
+function isHex(value) {
+  return /^#[0-9a-fA-F]{6}$/.test(String(value))
+}
 
-      // Enter = kirim
-      // Shift + Enter = baris baru
+function normalizeDashboardColors(colors = {}) {
+  const result = {}
+  for (const [key, fallback] of Object.entries(defaultDashboardColors)) {
+    result[key] = isHex(colors[key])
+      ? String(colors[key]).toLowerCase()
+      : fallback
+  }
+  return result
+}
+
+function applyDashboardColors(colors, save = true) {
+  const safe = normalizeDashboardColors(colors)
+  const root = document.body.style
+
+  root.setProperty("--accent", safe.accent)
+  root.setProperty("--accent-soft", hexToRgba(safe.accent, .18))
+  root.setProperty("--dashboard-bg", safe.background)
+  root.setProperty("--topbar-bg", hexToRgba(safe.topbar, .94))
+  root.setProperty("--sidebar-bg", hexToRgba(safe.sidebar, .96))
+  root.setProperty("--card-bg", hexToRgba(safe.card, .78))
+  root.setProperty("--text-main", safe.text)
+
+  Object.entries(colorInputs).forEach(([key, input]) => {
+    if (input) input.value = safe[key]
+  })
+
+  if (colorStatus) {
+    colorStatus.textContent = safe.accent.toUpperCase()
+  }
+
+  document.querySelectorAll(".color-preset").forEach(button => {
+    button.classList.toggle(
+      "selected",
+      button.dataset.color?.toLowerCase() === safe.accent
+    )
+  })
+
+  if (save) {
+    localStorage.setItem(maxielColorsKey, JSON.stringify(safe))
+  }
+}
+
+function getCurrentDashboardColors() {
+  const result = {}
+  for (const [key, input] of Object.entries(colorInputs)) {
+    result[key] = input?.value || defaultDashboardColors[key]
+  }
+  return normalizeDashboardColors(result)
+}
+
+function applyMaxielTheme(theme, save = true) {
+  const safe = ["blue", "original"].includes(theme)
+    ? theme
+    : "blue"
+
+  document.body.classList.remove(
+    "theme-blue",
+    "theme-original"
+  )
+  document.body.classList.add(`theme-${safe}`)
+
+  if (themeStatus) {
+    themeStatus.textContent = safe === "original"
+      ? "MAXIEL NEW"
+      : "BLUE"
+  }
+
+  document.querySelectorAll(".theme-option").forEach(button => {
+    button.classList.toggle(
+      "selected",
+      button.dataset.theme === safe
+    )
+  })
+
+  if (save) {
+    localStorage.setItem(maxielThemeKey, safe)
+  }
+}
+
+document.querySelectorAll(".theme-option").forEach(button => {
+  button.addEventListener("click", () => {
+    applyMaxielTheme(button.dataset.theme)
+    toast(`Background ${button.textContent.trim().split("\n")[0]} diterapkan.`)
+  })
+})
+
+Object.entries(colorInputs).forEach(([key, input]) => {
+  input?.addEventListener("input", event => {
+    const colors = getCurrentDashboardColors()
+    colors[key] = event.target.value
+    applyDashboardColors(colors)
+    toast(`Warna ${key} langsung diterapkan.`)
+  })
+})
+
+document.querySelectorAll(".color-preset").forEach(button => {
+  button.addEventListener("click", () => {
+    const colors = getCurrentDashboardColors()
+    colors.accent = button.dataset.color
+    applyDashboardColors(colors)
+    toast(`Warna menu aktif ${button.dataset.color.toUpperCase()} diterapkan.`)
+  })
+})
+
+resetSettings?.addEventListener("click", () => {
+  localStorage.removeItem(maxielThemeKey)
+  localStorage.removeItem(maxielColorsKey)
+  applyMaxielTheme("blue", false)
+  applyDashboardColors(defaultDashboardColors, false)
+  toast("Semua pengaturan warna dikembalikan ke default.")
+})
+
+let savedColors = defaultDashboardColors
+try {
+  const stored = JSON.parse(
+    localStorage.getItem(maxielColorsKey) || "null"
+  )
+  if (stored && typeof stored === "object") {
+    savedColors = normalizeDashboardColors(stored)
+  }
+} catch {}
+
+const savedTheme = localStorage.getItem(maxielThemeKey)
+applyMaxielTheme(
+  savedTheme === "original" ? "original" : "blue",
+  false
+)
+applyDashboardColors(savedColors, false)
+
+// =========================================================
+// MAXIEL TUTORIAL VIDEO PLAYER
+// =========================================================
+
+const tutorialVideo = document.getElementById("tutorialVideo")
+const tutorialVideoWrap = document.querySelector(".tutorial-video-wrap")
+const tutorialPlay = document.getElementById("tutorialPlay")
+const tutorialBigPlay = document.getElementById("tutorialBigPlay")
+const tutorialMute = document.getElementById("tutorialMute")
+const tutorialProgress = document.getElementById("tutorialProgress")
+const tutorialCurrentTime = document.getElementById("tutorialCurrentTime")
+const tutorialDuration = document.getElementById("tutorialDuration")
+const tutorialFullscreen = document.getElementById("tutorialFullscreen")
+const tutorialSpeedButton = document.getElementById("tutorialSpeedButton")
+const tutorialSpeed = document.querySelector(".tutorial-speed")
+const tutorialSpeedMenu = document.getElementById("tutorialSpeedMenu")
+const tutorialLoading = document.getElementById("tutorialVideoLoading")
+
+if (tutorialVideo) {
+
+  function tutorialFormatTime(seconds) {
+    if (!Number.isFinite(seconds)) {
+      return "00:00"
+    }
+
+    const minutes = Math.floor(seconds / 60)
+    const secs = Math.floor(seconds % 60)
+
+    return `${String(minutes).padStart(2, "0")}:${String(secs).padStart(2, "0")}`
+  }
+
+  function updateTutorialPlayUI() {
+
+    const playing =
+      !tutorialVideo.paused &&
+      !tutorialVideo.ended
+
+    if (tutorialPlay) {
+      tutorialPlay.textContent =
+        playing ? "Ⅱ" : "▶"
+    }
+
+    tutorialVideoWrap?.classList.toggle(
+      "playing",
+      playing
+    )
+  }
+
+  function toggleTutorialPlay() {
+
+    if (tutorialVideo.paused) {
+      tutorialVideo.play().catch(error => {
+        console.error(
+          "Tutorial video tidak dapat diputar:",
+          error
+        )
+      })
+    } else {
+      tutorialVideo.pause()
+    }
+
+  }
+
+  // PLAY / PAUSE
+  tutorialPlay?.addEventListener(
+    "click",
+    toggleTutorialPlay
+  )
+
+  tutorialBigPlay?.addEventListener(
+    "click",
+    toggleTutorialPlay
+  )
+
+  // Klik video untuk play / pause
+  tutorialVideo.addEventListener(
+    "click",
+    toggleTutorialPlay
+  )
+
+  // STATUS PLAY
+  tutorialVideo.addEventListener(
+    "play",
+    updateTutorialPlayUI
+  )
+
+  // STATUS PAUSE
+  tutorialVideo.addEventListener(
+    "pause",
+    updateTutorialPlayUI
+  )
+
+  // VIDEO SELESAI
+  tutorialVideo.addEventListener(
+    "ended",
+    () => {
+
+      updateTutorialPlayUI()
+
+      if (tutorialProgress) {
+        tutorialProgress.value = 0
+      }
+
+    }
+  )
+
+  // DATA VIDEO SIAP
+  tutorialVideo.addEventListener(
+    "loadedmetadata",
+    () => {
+
+      if (tutorialDuration) {
+        tutorialDuration.textContent =
+          tutorialFormatTime(
+            tutorialVideo.duration
+          )
+      }
+
+      if (tutorialProgress) {
+        tutorialProgress.max =
+          tutorialVideo.duration || 0
+
+        tutorialProgress.value = 0
+      }
+
+    }
+  )
+
+  // UPDATE WAKTU
+  tutorialVideo.addEventListener(
+    "timeupdate",
+    () => {
+
+      if (!tutorialVideo.duration) {
+        return
+      }
+
+      if (tutorialCurrentTime) {
+        tutorialCurrentTime.textContent =
+          tutorialFormatTime(
+            tutorialVideo.currentTime
+          )
+      }
+
+      if (tutorialProgress) {
+        tutorialProgress.value =
+          tutorialVideo.currentTime
+      }
+
+    }
+  )
+
+  // SEEK VIDEO
+  tutorialProgress?.addEventListener(
+    "input",
+    () => {
+
+      tutorialVideo.currentTime =
+        Number(
+          tutorialProgress.value
+        )
+
+    }
+  )
+
+  // MUTE
+  tutorialMute?.addEventListener(
+    "click",
+    () => {
+
+      tutorialVideo.muted =
+        !tutorialVideo.muted
+
+      tutorialMute.textContent =
+        tutorialVideo.muted
+          ? "🔇"
+          : "🔊"
+
+    }
+  )
+
+  // SPEED MENU
+  tutorialSpeedButton?.addEventListener(
+    "click",
+    event => {
+
+      event.stopPropagation()
+
+      tutorialSpeed?.classList.toggle(
+        "open"
+      )
+
+    }
+  )
+
+  // PILIH SPEED
+  tutorialSpeedMenu
+    ?.querySelectorAll("button")
+    .forEach(button => {
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          const speed =
+            Number(
+              button.dataset.speed
+            )
+
+          if (!Number.isFinite(speed)) {
+            return
+          }
+
+          tutorialVideo.playbackRate =
+            speed
+
+          if (tutorialSpeedButton) {
+            tutorialSpeedButton.textContent =
+              `${speed}×`
+          }
+
+          tutorialSpeedMenu
+            .querySelectorAll("button")
+            .forEach(item => {
+              item.classList.remove("active")
+            })
+
+          button.classList.add("active")
+
+          tutorialSpeed?.classList.remove(
+            "open"
+          )
+
+        }
+      )
+
+    })
+
+  // TUTUP MENU SPEED KETIKA KLIK DI LUAR
+  document.addEventListener(
+    "click",
+    event => {
 
       if (
-        e.key === "Enter" &&
-        !e.shiftKey
+        tutorialSpeed &&
+        !tutorialSpeed.contains(event.target)
       ) {
+        tutorialSpeed.classList.remove(
+          "open"
+        )
+      }
 
-        e.preventDefault()
+    }
+  )
 
-        sendAIMessage()
+  // FULLSCREEN
+  tutorialFullscreen?.addEventListener(
+    "click",
+    async () => {
+
+      try {
+
+        if (document.fullscreenElement) {
+
+          await document.exitFullscreen()
+
+        } else if (
+          tutorialVideoWrap?.requestFullscreen
+        ) {
+
+          await tutorialVideoWrap.requestFullscreen()
+
+        } else if (
+          tutorialVideo.webkitEnterFullscreen
+        ) {
+
+          tutorialVideo.webkitEnterFullscreen()
+
+        }
+
+      } catch (error) {
+
+        console.error(
+          "Fullscreen tutorial:",
+          error
+        )
 
       }
 
     }
   )
 
-
-  // textarea otomatis membesar
-  // mengikuti isi ketikan
-
-  aiInput.addEventListener(
-    "input",
+  // LOADING
+  tutorialVideo.addEventListener(
+    "waiting",
     () => {
 
-      aiInput.style.height = "auto"
-
-      aiInput.style.height =
-        Math.min(
-          aiInput.scrollHeight,
-          120
-        ) + "px"
+      tutorialLoading?.classList.add(
+        "show"
+      )
 
     }
   )
 
+  tutorialVideo.addEventListener(
+    "playing",
+    () => {
+
+      tutorialLoading?.classList.remove(
+        "show"
+      )
+
+    }
+  )
+
+  tutorialVideo.addEventListener(
+    "canplay",
+    () => {
+
+      tutorialLoading?.classList.remove(
+        "show"
+      )
+
+    }
+  )
+
+  // ERROR
+  tutorialVideo.addEventListener(
+    "error",
+    () => {
+
+      tutorialLoading?.classList.remove(
+        "show"
+      )
+
+      toast(
+        "Video tutorial gagal dimuat."
+      )
+
+      console.error(
+        "Video tutorial gagal dimuat."
+      )
+
+    }
+  )
+
+  // DEFAULT SPEED
+  tutorialVideo.playbackRate = 1
+
+  // DEFAULT ICON
+  updateTutorialPlayUI()
+
+}
+
+// =========================
+// =========================
+// MAXIEL AI
+// =========================
+const aiForm = document.getElementById("aiForm")
+const aiInput = document.getElementById("aiInput")
+const aiMessages = document.getElementById("aiMessages")
+const aiTyping = document.getElementById("aiTyping")
+const aiSend = document.getElementById("aiSend")
+const clearAIChat = document.getElementById("clearAIChat")
+
+let aiWaiting = false
+
+function aiTime(){
+  return new Date().toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit"})
+}
+
+function addAIMessage(text,type){
+  const bubble=document.createElement("div")
+  bubble.className=`ai-bubble ${type === "user" ? "ai-user" : "ai-bot"}`
+  const body=document.createElement("div")
+  body.textContent=text
+  const time=document.createElement("time")
+  time.textContent=aiTime()
+  bubble.append(body,time)
+  aiMessages.appendChild(bubble)
+  aiMessages.scrollTop=aiMessages.scrollHeight
+}
+
+async function askMaxielAI(query){
+  const url=`https://api.fromscratch.web.id/v1/api/ai/publicai?query=${encodeURIComponent(query)}`
+  const response=await fetch(url,{method:"GET",headers:{Accept:"application/json"},cache:"no-store"})
+  if(!response.ok) throw new Error(`AI HTTP ${response.status}`)
+  const result=await response.json()
+  const answer=result?.data?.response
+  if(!answer) throw new Error("Respons AI kosong")
+  return answer
+}
+
+async function sendAIMessage(){
+  if(aiWaiting) return
+  const query=aiInput.value.trim()
+  if(!query) return
+
+  aiWaiting=true
+  aiSend.disabled=true
+  aiInput.disabled=true
+  aiTyping.classList.add("show")
+
+  // Tampilkan pesan pengguna terlebih dahulu.
+  addAIMessage(query,"user")
+  aiInput.value=""
+  aiInput.style.height="auto"
+  aiMessages.scrollTop=aiMessages.scrollHeight
+
+  try{
+    // Tunggu sampai API benar-benar memberikan respons.
+    const answer=await askMaxielAI(query)
+    addAIMessage(answer,"bot")
+  }catch(error){
+    console.error("Maxiel AI:",error)
+    addAIMessage("Maaf, Maxiel AI sedang mengalami masalah. Coba lagi beberapa saat lagi.","bot")
+  }finally{
+    aiTyping.classList.remove("show")
+    aiInput.disabled=false
+    aiSend.disabled=false
+    aiWaiting=false
+    aiInput.focus()
+  }
+}
+
+if(aiForm){
+  aiForm.addEventListener("submit",e=>{
+    e.preventDefault()
+    e.stopImmediatePropagation()
+    sendAIMessage()
+  })
+}
+
+if(aiSend){
+  aiSend.type="button"
+  aiSend.addEventListener("click",e=>{
+    e.preventDefault()
+    e.stopPropagation()
+    sendAIMessage()
+  })
+}
+
+if(aiInput){
+  aiInput.addEventListener("input",()=>{
+    aiInput.style.height="auto"
+    aiInput.style.height=Math.min(aiInput.scrollHeight,120)+"px"
+  })
+  aiInput.addEventListener("keydown",e=>{
+    if(e.key==="Enter"&&!e.shiftKey){
+      e.preventDefault()
+      e.stopPropagation()
+      sendAIMessage()
+    }
+  })
+}
+
+if(clearAIChat){
+  clearAIChat.type="button"
+  clearAIChat.addEventListener("click",e=>{
+    e.preventDefault()
+    e.stopPropagation()
+    if(aiWaiting) return
+    aiMessages.innerHTML=""
+    addAIMessage("Chat dibersihkan. Halo 👋 Ada yang bisa saya bantu?","bot")
+  })
 }
