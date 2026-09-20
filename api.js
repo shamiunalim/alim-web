@@ -19,3 +19,10 @@ export const API = {
 }
 
 export const TIKTOK_API = "https://www.tikwm.com/api/"
+
+export const AI_WORKER_DEFAULT = ""//"https://api.fromscratch.web.id/v1/api/"
+
+export function aiWorkerUrl(worker, query){
+  const base = String(worker || AI_WORKER_DEFAULT).trim().replace(/\/$/, "")
+  return `${base}/ai?query=${encodeURIComponent(query)}`
+}
