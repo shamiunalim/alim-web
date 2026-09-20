@@ -20,7 +20,7 @@ let currentType = "video"
 // NAVIGATION
 // =========================
 
-function openPage(pageName) {
+function openPage(pageName,remember=true) {
   pages.forEach(page => {
     page.classList.toggle(
       "active",
@@ -36,6 +36,10 @@ function openPage(pageName) {
   })
 
   sidebar.classList.remove("open")
+
+  if(remember){
+    sessionStorage.setItem("maxiel_active_page",pageName)
+  }
 
   window.scrollTo({
     top: 0,
@@ -57,6 +61,10 @@ document.querySelectorAll("[data-open]").forEach(button => {
   })
 })
 
+const savedActivePage = sessionStorage.getItem("maxiel_active_page")
+if(savedActivePage && document.getElementById(savedActivePage)){
+  openPage(savedActivePage,false)
+}
 
 menuBtn.addEventListener("click", () => {
   sidebar.classList.toggle("open")
@@ -1464,6 +1472,10 @@ if (
   // MULAI
   // =========================
 
+  // Jangan pernah memutar musik otomatis saat halaman/reload dibuka.
+  bgMusic.pause()
+  bgMusic.autoplay = false
+  bgMusic.removeAttribute("autoplay")
   loadMusic(0, false)
   updateMusicUI()
 
@@ -2672,7 +2684,23 @@ function formatAiTime(){
   })
 }
 
-function addAiMessage(text,type="bot"){
+function saveAiChat(){
+  if(!aiMessages) return
+  localStorage.setItem("maxiel_ai_chat",aiMessages.innerHTML)
+}
+
+function loadAiChat(){
+  if(!aiMessages) return false
+  const saved = localStorage.getItem("maxiel_ai_chat")
+  if(!saved) return false
+  aiMessages.innerHTML = saved
+  requestAnimationFrame(()=>{
+    aiMessages.scrollTop = aiMessages.scrollHeight
+  })
+  return true
+}
+
+function addAiMessage(text,type="bot",save=true){
   const message = document.createElement("div")
   message.className = `ai-message ai-${type}`
   const bubble = document.createElement("div")
@@ -2690,9 +2718,9 @@ function addAiMessage(text,type="bot"){
     top:aiMessages.scrollHeight,
     behavior:"smooth"
   })
+  if(save) saveAiChat()
   return bubble
 }
-
 function setAiTyping(show){
   aiTyping?.classList.toggle("show",show)
   if(show){
@@ -2704,23 +2732,39 @@ function setAiTyping(show){
 }
 
 async function createAIRequest(query){
-  const response = await fetch(
-    `/ai?query=${encodeURIComponent(query)}`,
-    {
+  const proxyUrl = `./ai?query=${encodeURIComponent(query)}`
+
+  let response
+  try{
+    response = await fetch(proxyUrl,{
       method:"GET",
       headers:{"Accept":"application/json"},
       cache:"no-store"
-    }
-  )
+    })
+  }catch(error){
+    throw new Error("Koneksi AI gagal. Periksa koneksi internet.")
+  }
 
   let result
   try{
     result = await response.json()
   }catch{
-    throw new Error("Service Worker belum aktif atau respons AI tidak valid.")
+    throw new Error("AI belum siap. Muat ulang halaman sekali lalu coba lagi.")
   }
 
+  // Pada kunjungan pertama Service Worker belum mengontrol halaman.
+  // Gunakan Public AI sebagai fallback agar tombol kirim tidak pernah mengarahkan halaman ke /ai.
   if(!response.ok || result?.status !== 200){
+    try{
+      const direct = await fetch(API.publicAI(query),{
+        method:"GET",
+        headers:{"Accept":"application/json"},
+        cache:"no-store"
+      })
+      const directData = await direct.json()
+      const directAnswer = directData?.data?.response || directData?.response
+      if(direct.ok && directAnswer) return directAnswer
+    }catch{}
     throw new Error(result?.error || `AI HTTP ${response.status}`)
   }
 
@@ -2801,6 +2845,7 @@ aiClear?.addEventListener("click",() => {
       </div>
     </div>
   `
+  saveAiChat()
 })
 
 aiResponseOptions.forEach(button => {
@@ -2842,6 +2887,7 @@ testAiWorker?.addEventListener("click",async() => {
 })
 
 setAiResponseMode(getAiResponseMode())
+loadAiChat()
 if(aiAutoVoice){
   aiAutoVoice.checked =
     localStorage.getItem(aiAutoVoiceKey) !== "false"
