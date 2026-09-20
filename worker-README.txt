@@ -1,27 +1,18 @@
-MAXIEL AI WORKER
+MAXIEL AI - TANPA URL WORKER
 
-File: worker.js
-Target: Cloudflare Workers
+Versi ini tidak meminta pengguna memasukkan URL Worker.
+Website memanggil endpoint internal /ai. Service Worker menangkap request
+tersebut lalu meneruskan query ke:
+https://api.fromscratch.web.id/v1/api/ai/publicai
 
-1. Buat Worker baru di Cloudflare.
-2. Salin seluruh isi worker.js ke Worker tersebut.
-3. Deploy.
-4. URL Worker biasanya seperti:
-   https://nama-worker.username.workers.dev
-5. Endpoint AI:
-   https://nama-worker.username.workers.dev/ai?query=Halo
-6. Di website buka:
-   Pengaturan -> AI Worker
-   lalu masukkan URL Worker TANPA /ai.
+Alur:
+Website -> /ai?query=... -> Service Worker -> Public AI -> data.response
 
-Worker meneruskan query ke:
-https://api.fromscratch.web.id/v1/api/ai/publicai?query=...
+GitHub Pages harus HTTPS agar Service Worker dapat berjalan.
+worker.js tetap disertakan sebagai opsi Cloudflare Worker, tetapi website
+versi ini tidak membutuhkan URL Cloudflare Worker.
 
-Website tidak memanggil Public AI secara langsung; request AI diarahkan melalui Worker.
-
-
-CATATAN:
-- File worker.js berada di root ZIP sebagai template Cloudflare Worker.
-- Jangan menaruh token rahasia di app.js atau GitHub Pages. Worker ini tidak membutuhkan token untuk endpoint Public AI yang digunakan.
-- Setelah deploy Worker, masukkan URL Worker di menu Pengaturan -> AI Worker pada website.
-- URL yang disimpan di browser bersifat lokal untuk perangkat/browser tersebut.
+Pengaturan AI:
+- Text: jawaban tampil sebagai chat.
+- Voice: jawaban tampil dan dibacakan browser.
+- Suara otomatis: on/off.
