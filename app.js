@@ -2280,3 +2280,157 @@ if (tutorialVideo) {
   updateTutorialPlayUI()
 
 }
+
+// =========================================================
+// MAXIEL APP ICON / PWA SETTINGS
+// =========================================================
+
+const appIconFile=document.getElementById("appIconFile")
+const appIconPreview=document.getElementById("appIconPreview")
+const appIconPreviewName=document.getElementById("appIconPreviewName")
+const appNameInput=document.getElementById("appNameInput")
+const saveAppIcon=document.getElementById("saveAppIcon")
+const resetAppIcon=document.getElementById("resetAppIcon")
+const appIconStatus=document.getElementById("appIconStatus")
+
+const appIconKey="maxiel_app_icon"
+const appNameKey="maxiel_app_name"
+
+let selectedAppIcon=null
+
+function updateAppIconPreview(image){
+  if(!appIconPreview||!image)return
+  appIconPreview.src=image
+}
+
+function updateAppNamePreview(name){
+  const value=(name||"Maxiel Web").trim()||"Maxiel Web"
+
+  if(appIconPreviewName){
+    appIconPreviewName.textContent=value
+  }
+
+  if(appIconStatus){
+    appIconStatus.textContent=value.slice(0,12).toUpperCase()
+  }
+
+  document.title=value
+}
+
+appIconFile?.addEventListener("change",event=>{
+  const file=event.target.files?.[0]
+  if(!file)return
+
+  if(!file.type.startsWith("image/")){
+    toast("File harus berupa gambar.")
+    return
+  }
+
+  const reader=new FileReader()
+
+  reader.onload=()=>{
+    selectedAppIcon=reader.result
+    updateAppIconPreview(selectedAppIcon)
+    toast("Foto ikon siap digunakan.")
+  }
+
+  reader.readAsDataURL(file)
+})
+
+appNameInput?.addEventListener("input",()=>{
+  updateAppNamePreview(appNameInput.value)
+})
+
+function updateFavicon(icon){
+  let favicon=document.querySelector('link[data-maxiel-favicon]')
+
+  if(!favicon){
+    favicon=document.createElement("link")
+    favicon.rel="icon"
+    favicon.type="image/png"
+    favicon.dataset.maxielFavicon="true"
+    document.head.appendChild(favicon)
+  }
+
+  favicon.href=icon
+}
+
+function updateAppleIcon(icon){
+  let apple=document.querySelector('link[data-maxiel-apple-icon]')
+
+  if(!apple){
+    apple=document.createElement("link")
+    apple.rel="apple-touch-icon"
+    apple.dataset.maxielAppleIcon="true"
+    document.head.appendChild(apple)
+  }
+
+  apple.href=icon
+}
+
+function saveAppSettings(){
+  const name=(appNameInput?.value||"Maxiel Web").trim()||"Maxiel Web"
+  const icon=selectedAppIcon||localStorage.getItem(appIconKey)||"icon-192.png"
+
+  try{
+    localStorage.setItem(appNameKey,name)
+    localStorage.setItem(appIconKey,icon)
+
+    updateAppNamePreview(name)
+    updateAppIconPreview(icon)
+    updateFavicon(icon)
+    updateAppleIcon(icon)
+
+    toast("Ikon dan nama aplikasi berhasil disimpan.")
+  }catch(error){
+    console.error(error)
+    toast("Gagal menyimpan ikon. Foto mungkin terlalu besar.")
+  }
+}
+
+saveAppIcon?.addEventListener("click",saveAppSettings)
+
+resetAppIcon?.addEventListener("click",()=>{
+  localStorage.removeItem(appIconKey)
+  localStorage.removeItem(appNameKey)
+
+  selectedAppIcon=null
+
+  if(appNameInput){
+    appNameInput.value="Maxiel Web"
+  }
+
+  updateAppNamePreview("Maxiel Web")
+  updateAppIconPreview("icon-192.png")
+  updateFavicon("icon-192.png")
+  updateAppleIcon("icon-192.png")
+
+  if(appIconFile){
+    appIconFile.value=""
+  }
+
+  toast("Ikon aplikasi dikembalikan ke default.")
+})
+
+try{
+  const savedAppName=localStorage.getItem(appNameKey)
+  const savedAppIcon=localStorage.getItem(appIconKey)
+
+  if(savedAppName){
+    if(appNameInput){
+      appNameInput.value=savedAppName
+    }
+    updateAppNamePreview(savedAppName)
+  }else{
+    updateAppNamePreview("Maxiel Web")
+  }
+
+  if(savedAppIcon){
+    selectedAppIcon=savedAppIcon
+    updateAppIconPreview(savedAppIcon)
+    updateFavicon(savedAppIcon)
+    updateAppleIcon(savedAppIcon)
+  }
+}catch(error){
+  console.error("Gagal memuat pengaturan ikon:",error)
+}
