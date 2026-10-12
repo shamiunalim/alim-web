@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#090b12">
+<title>Maxiel Video Hub</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="./"><span class="logo">▶</span><span>MAXIEL <small>VIDEO HUB</small></span></a>
+  <button id="themeBtn" class="ghost" aria-label="Ganti tema">◐</button>
+</header>
+<main>
+  <section class="hero">
+    <div class="eyebrow">VIDEO TOOLS · WEB PAGES</div>
+    <h1>Temukan. Putar. <span>Simpan.</span></h1>
+    <p>Putar video dari URL langsung, kelola beberapa video sekaligus, atau buka situs video melalui browser mini.</p>
+    <div class="tabs" role="tablist">
+      <button class="tab active" data-tab="download">Video & URL</button>
+      <button class="tab" data-tab="browser">Browser & Pencarian</button>
+    </div>
+  </section>
+
+  <section id="download" class="panel">
+    <h2>Daftar video</h2>
+    <p class="muted">Masukkan URL file video langsung (MP4, WebM, OGG, atau URL stream yang memang dapat diakses). Satu URL per baris.</p>
+    <textarea id="videoUrls" rows="4" placeholder="https://example.com/video1.mp4&#10;https://example.com/video2.webm"></textarea>
+    <div class="actions">
+      <button id="loadVideos" class="primary">Tampilkan video</button>
+      <button id="clearVideos" class="ghost">Bersihkan</button>
+    </div>
+    <div id="videoStatus" class="status" aria-live="polite"></div>
+    <div id="videoGrid" class="video-grid"></div>
+    <div class="note"><strong>Catatan:</strong> tombol Simpan hanya berfungsi jika server mengizinkan akses unduh. Website ini tidak membobol DRM, login, paywall, token, atau proteksi situs.</div>
+  </section>
+
+  <section id="browser" class="panel hidden">
+    <h2>Browser & pencarian</h2>
+    <p class="muted">Masukkan alamat situs atau kata kunci pencarian. Sebagian situs melarang tampil di iframe; gunakan tombol “Buka di tab baru” jika panel tidak dapat memuatnya.</p>
+    <form id="browseForm" class="browse-form">
+      <input id="browseInput" type="text" placeholder="URL situs atau kata kunci pencarian" autocomplete="url">
+      <select id="searchEngine" aria-label="Mesin pencari">
+        <option value="https://www.google.com/search?q=">Google</option>
+        <option value="https://www.bing.com/search?q=">Bing</option>
+        <option value="https://duckduckgo.com/?q=">DuckDuckGo</option>
+      </select>
+      <button class="primary" type="submit">Buka</button>
+    </form>
+    <div class="browser-actions">
+      <button id="openExternal" class="ghost" disabled>Buka di tab baru ↗</button>
+      <button id="clearBrowser" class="ghost">Bersihkan panel</button>
+    </div>
+    <div id="browserStatus" class="status" aria-live="polite"></div>
+    <div class="frame-wrap"><iframe id="siteFrame" title="Browser situs" referrerpolicy="no-referrer" sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-presentation" allow="fullscreen; autoplay"></iframe></div>
+    <p class="tiny">Panel ini bukan browser penuh dan tidak dapat mengatasi pembatasan situs. Situs yang memakai X-Frame-Options/CSP, login, atau pemeriksaan keamanan mungkin harus dibuka di tab baru.</p>
+  </section>
+</main>
+<footer>Maxiel Video Hub · HTML/CSS/JS · GitHub Pages</footer>
+<script src="app.js"></script>
+</body>
+</html>
