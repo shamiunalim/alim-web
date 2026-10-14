@@ -1,0 +1,13 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /chatMedia/{uid}/{fileName} {
+      allow read: if request.auth != null;
+      allow create, update: if request.auth != null
+        && request.auth.uid == uid
+        && request.resource.size < 20 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*|video/.*|audio/.*|application/pdf|text/.*|application/zip|application/octet-stream');
+      allow delete: if request.auth != null && request.auth.uid == uid;
+    }
+  }
+}
